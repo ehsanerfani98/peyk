@@ -10,7 +10,7 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::get('/', function () {
-    SearchCourierForOrderJob::dispatch(37);
+    return view('landing');
 });
 
 Route::post('/logout', function () {
