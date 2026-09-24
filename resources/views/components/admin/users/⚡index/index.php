@@ -37,7 +37,7 @@ new #[Layout('layouts.app')] #[Title('مدیریت کاربران')] class exten
 
     public ?string $editEmail = '';
 
-    public ?string $editingUserMobile = null;
+    public ?string $editMobile = '';
 
     // ریست رمز عبور
     public bool $showPasswordModal = false;
@@ -54,6 +54,8 @@ new #[Layout('layouts.app')] #[Title('مدیریت کاربران')] class exten
     public string $createName = '';
 
     public string $createEmail = '';
+
+    public string $createMobile = '';
 
     public string $createPassword = '';
 
@@ -132,7 +134,7 @@ new #[Layout('layouts.app')] #[Title('مدیریت کاربران')] class exten
         $this->editingUserInfoId = $user->id;
         $this->editName = $user->name;
         $this->editEmail = $user->email;
-        $this->editingUserMobile = $user->mobile;
+        $this->editMobile = $user->mobile ?? '';
         $this->showUserEditModal = true;
     }
 
@@ -143,11 +145,17 @@ new #[Layout('layouts.app')] #[Title('مدیریت کاربران')] class exten
         $this->validate([
             'editName' => 'required|string|max:255',
             'editEmail' => 'nullable|email|unique:users,email,'.$this->editingUserInfoId,
-        ], [], ['editName' => 'نام', 'editEmail' => 'ایمیل']);
+            'editMobile' => 'nullable|string|regex:/^(09[0-9]{9}|\+989[0-9]{9})$/|unique:users,mobile,'.$this->editingUserInfoId,
+        ], [], [
+            'editName' => 'نام',
+            'editEmail' => 'ایمیل',
+            'editMobile' => 'شماره موبایل',
+        ]);
 
         User::findOrFail($this->editingUserInfoId)->update([
             'name' => $this->editName,
             'email' => filled($this->editEmail) ? $this->editEmail : null,
+            'mobile' => filled($this->editMobile) ? $this->editMobile : null,
         ]);
 
         $this->showUserEditModal = false;
@@ -206,7 +214,7 @@ new #[Layout('layouts.app')] #[Title('مدیریت کاربران')] class exten
 
     public function openCreateUser(): void
     {
-        $this->reset('createName', 'createEmail', 'createPassword', 'createPassword_confirmation', 'createRoles');
+        $this->reset('createName', 'createEmail', 'createMobile', 'createPassword', 'createPassword_confirmation', 'createRoles');
         $this->showCreateUserModal = true;
     }
 
@@ -216,19 +224,22 @@ new #[Layout('layouts.app')] #[Title('مدیریت کاربران')] class exten
 
         $this->validate([
             'createName' => 'required|string|max:255',
-            'createEmail' => 'required|email|unique:users,email',
+            'createEmail' => 'nullable|email|unique:users,email',
+            'createMobile' => 'nullable|string|regex:/^(09[0-9]{9}|\+989[0-9]{9})$/|unique:users,mobile',
             'createPassword' => 'required|confirmed|min:8',
             'createRoles' => 'required|array|min:1',
         ], [], [
             'createName' => 'نام',
             'createEmail' => 'ایمیل',
+            'createMobile' => 'شماره موبایل',
             'createPassword' => 'رمز عبور',
             'createRoles' => 'نقش‌ها',
         ]);
 
         $user = User::create([
             'name' => $this->createName,
-            'email' => $this->createEmail,
+            'email' => filled($this->createEmail) ? $this->createEmail : null,
+            'mobile' => filled($this->createMobile) ? $this->createMobile : null,
             'password' => Hash::make($this->createPassword),
             'email_verified_at' => now(),
         ]);
