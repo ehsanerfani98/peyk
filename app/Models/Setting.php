@@ -7,6 +7,11 @@ use Illuminate\Support\Facades\Cache;
 
 final class Setting extends Model
 {
+    /**
+     * مدت زمان کش مقادیر تنظیمات (ثانیه).
+     */
+    private const CACHE_TTL_SECONDS = 3600;
+
     protected $fillable = [
         'key',
         'value',
@@ -15,10 +20,18 @@ final class Setting extends Model
 
     /**
      * Get a setting value by key.
+     *
+     * مقدار از کش خوانده می‌شود و در صورت نبود، از دیتابیس واکشی و کش می‌شود.
      */
     public static function getValue(string $key, mixed $default = null): mixed
     {
-        return self::where('key', $key)->value('value') ?? $default;
+        $value = Cache::remember(
+            self::cacheKey($key),
+            self::CACHE_TTL_SECONDS,
+            fn (): mixed => self::where('key', $key)->value('value'),
+        );
+
+        return $value ?? $default;
     }
 
     /**
@@ -31,7 +44,7 @@ final class Setting extends Model
             ['value' => (string) $value, 'group' => $group]
         );
 
-        Cache::forget("setting.{$key}");
+        self::forgetCache($key);
     }
 
     /**
@@ -42,5 +55,40 @@ final class Setting extends Model
         return self::where('group', $group)
             ->pluck('value', 'key')
             ->toArray();
+    }
+
+    /**
+     * پاک‌سازی کش یک تنظیم خاص.
+     */
+    public static function forgetCache(string $key): void
+    {
+        Cache::forget(self::cacheKey($key));
+    }
+
+    /**
+     * پاک‌سازی کش تمام تنظیمات.
+     */
+    public static function flushCache(): void
+    {
+        self::query()->pluck('key')->each(
+            fn (string $key): bool => Cache::forget(self::cacheKey($key))
+        );
+    }
+
+    /**
+     * کلید کش مربوط به یک تنظیم.
+     */
+    private static function cacheKey(string $key): string
+    {
+        return "setting.{$key}";
+    }
+
+    /**
+     * پاک‌سازی کش هنگام به‌روزرسانی یا حذف مستقیم مدل.
+     */
+    protected static function booted(): void
+    {
+        self::saved(fn (self $setting): mixed => Cache::forget(self::cacheKey($setting->key)));
+        self::deleted(fn (self $setting): mixed => Cache::forget(self::cacheKey($setting->key)));
     }
 }

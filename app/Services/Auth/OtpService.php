@@ -40,7 +40,7 @@ final class OtpService
         $this->smsSender->send(
             localMobile: $mobile,
             paramValue: $code,
-            patternCode: 'x7km2n9p4qrst',
+            patternCode: Setting::getValue('ippanel.otp_pattern_code', config('ippanel.otp_pattern_code')),
             paramKey: Setting::getValue('ippanel.otp_param_key', config('ippanel.otp_param_key', 'code')),
         );
     }
