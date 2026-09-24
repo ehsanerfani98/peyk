@@ -33,9 +33,11 @@ new #[Layout('layouts.app')] #[Title('مدیریت کاربران')] class exten
 
     public ?int $editingUserInfoId = null;
 
-    public string $editName = '';
+    public ?string $editName = '';
 
-    public string $editEmail = '';
+    public ?string $editEmail = '';
+
+    public ?string $editingUserMobile = null;
 
     // ریست رمز عبور
     public bool $showPasswordModal = false;
@@ -130,6 +132,7 @@ new #[Layout('layouts.app')] #[Title('مدیریت کاربران')] class exten
         $this->editingUserInfoId = $user->id;
         $this->editName = $user->name;
         $this->editEmail = $user->email;
+        $this->editingUserMobile = $user->mobile;
         $this->showUserEditModal = true;
     }
 
@@ -139,12 +142,12 @@ new #[Layout('layouts.app')] #[Title('مدیریت کاربران')] class exten
 
         $this->validate([
             'editName' => 'required|string|max:255',
-            'editEmail' => 'required|email|unique:users,email,'.$this->editingUserInfoId,
+            'editEmail' => 'nullable|email|unique:users,email,'.$this->editingUserInfoId,
         ], [], ['editName' => 'نام', 'editEmail' => 'ایمیل']);
 
         User::findOrFail($this->editingUserInfoId)->update([
             'name' => $this->editName,
-            'email' => $this->editEmail,
+            'email' => filled($this->editEmail) ? $this->editEmail : null,
         ]);
 
         $this->showUserEditModal = false;

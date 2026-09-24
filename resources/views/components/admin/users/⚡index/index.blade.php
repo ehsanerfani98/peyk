@@ -54,7 +54,10 @@
     <x-modal wire:model="showUserEditModal" title="ویرایش اطلاعات کاربر">
         <x-form wire:submit="saveUserInfo">
             <x-input label="نام" wire:model="editName" icon="o-user" />
-            <x-input label="ایمیل" wire:model="editEmail" icon="o-envelope" />
+            @if ($editingUserMobile)
+                <x-input label="شماره موبایل" value="{{ $editingUserMobile }}" icon="o-phone" readonly />
+            @endif
+            <x-input label="ایمیل" wire:model="editEmail" icon="o-envelope" hint="برای مشتری‌های موبایل‌محور می‌تواند خالی بماند" />
             <x-slot:actions>
                 <x-button label="انصراف" class="btn-error btn-soft" wire:click="$set('showUserEditModal', false)" />
                 <x-button label="ذخیره" type="submit" class="btn-success btn-soft" spinner="saveUserInfo" />
