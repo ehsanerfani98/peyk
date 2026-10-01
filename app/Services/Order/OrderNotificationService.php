@@ -50,7 +50,7 @@ final class OrderNotificationService
      */
     private function getPatternCode(string $key): ?string
     {
-        return Setting::getValue("ippanel.{$key}", config("ippanel.{$key}"));
+        return Setting::getValue("mediana.{$key}", config("mediana.{$key}"));
     }
 
     /**
@@ -58,7 +58,7 @@ final class OrderNotificationService
      */
     private function getParamKey(string $key, string $default = 'code'): string
     {
-        return Setting::getValue("ippanel.{$key}", config("ippanel.{$key}", $default));
+        return Setting::getValue("mediana.{$key}", config("mediana.{$key}", $default));
     }
 
     // ---------------------------------------------------------------

@@ -37,11 +37,10 @@ final class OtpService
             true,
             now()->addSeconds((int) Setting::getValue('otp.resend_seconds', config('otp.resend_seconds'))),
         );
-        $this->smsSender->send(
+        $this->smsSender->sendOtp(
             localMobile: $mobile,
-            paramValue: $code,
-            patternCode: Setting::getValue('ippanel.otp_pattern_code', config('ippanel.otp_pattern_code')),
-            paramKey: Setting::getValue('ippanel.otp_param_key', config('ippanel.otp_param_key', 'code')),
+            otpCode: $code,
+            patternCode: (string) Setting::getValue('mediana.otp_pattern_code', config('mediana.otp_pattern_code')),
         );
     }
 

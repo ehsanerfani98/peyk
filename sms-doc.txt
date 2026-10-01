@@ -1,0 +1,1762 @@
+مستندات API مدیانا (1.0.0)
+Download OpenAPI specification:Download
+
+API مدیانا خدماتی برای ارسال پیام‌ها از طریق کانال‌های مختلف از جمله پیامک، پیام‌رسان‌ها، ایمیل و VoIP ارائه می‌دهد.
+
+شروع به کار
+آدرس پایه: https://api.mediana.ir
+احراز هویت با کلید API الزامی است
+کلید API را در هدر X-API-KEY به صورت زیر وارد کنید: YOUR_API_KEY
+کدهای خطا
+کد خطا	توضیحات
+1032	برنامه فعالی یافت نشد
+1033	برنامه دارای قابلیت API نیست
+1034	برنامه دارای قابلیت الگو نیست
+1035	برنامه دارای قابلیت خط اختصاصی نیست
+1041	دریافت‌کننده نامعتبر در درخواست API
+1042	موجودی کیف پول کافی نیست
+1043	حداکثر تعداد دریافت‌کنندگان تجاوز شده است
+1044	شناسه پیامک نامعتبر است
+1045	کد درخواست نامعتبر است
+1046	پارامترهای ورودی نامعتبر هستند
+1047	شماره تلفن در لیست سیاه قرار دارد
+1048	WebEngage فعال نشده است
+1051	کمپین منقضی شده است
+1061	خط فعالی یافت نشد
+1062	خط در این زمان از روز قابل استفاده نیست
+1071	URL الگو شناسایی شد
+1072	الگو توسط مدیر رد شد
+1073	الگو متعلق به شماره ارسال دیگری است
+1074	متن پیام خالی است
+1075	درخواست پیام یافت نشد
+1076	الگو خالی است
+1081	کد پستی تایید نشده است
+1082	کد ملی تایید نشده است
+1083	شماره موبایل تایید نشده است
+1084	پروفایل کامل نشده است
+1093	دریافت‌کنندگان یافت نشدند
+1101	شماره ارسال یافت نشد
+1102	شماره ارسال منقضی شده است
+1021	خطای ناشناخته‌ای رخ داده است
+وضعیت ها
+کد وضعیت	عنوان وضعیت
+-3	لیست سیاه
+-2	لیست سیاه
+-1	تکراری
+0	نا مشخص
+1	در صف ارسال
+2	در حال ارسال
+4	ارسال شده
+5	رسیده به گوشی
+6	لغو شده
+7	نرسیده به گوشی
+8	لسیت سیاه
+9	رسیده به مخابرات
+پیامک
+ارسال OTP
+ارسال یک رمز عبور یک‌بار مصرف به گیرنده از طریق پیامک
+
+Authorizations:
+ApiKeyAuth
+Request Body schema: application/json
+required
+patternCode
+required
+string
+کد پترنی که برای ارسال پیام استفاده می‌شود
+
+recipient
+required
+string
+شماره موبایل گیرنده
+
+otpCode
+required
+string
+رمز یکبار مصرفی که ارسال می‌شود
+
+Responses
+200 پاسخ موفقیت‌آمیز
+400 خطای 400
+401 خطای احراز هویت
+500 خطای داخلی سرور
+
+post
+/sms/v1/send/otp
+
+Request samples
+Payload
+Content type
+application/json
+
+Copy
+{
+"patternCode": "110022",
+"recipient": "09123456789",
+"otpCode": "48213"
+}
+Response samples
+200400500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"meta": {
+"requestId": "929de9cf-e4aa-4eba-af85-10eb3a4b2b3d",
+"code": "OK",
+"errorMessage": null,
+"errors": null
+},
+"data": {
+"succeed": true,
+"requestId": 187484315,
+"requestCode": "187484315",
+"message": "در حال ساخت",
+"status": "PendingApproval",
+"statusInt": 2,
+"totalPrice": 2284,
+"smsItems": [],
+"clientRef": null
+},
+"pagination": null
+}
+ارسال پیامک عادی
+ارسال یک پیامک استاندارد به یک یا چند گیرنده (حداکثر 100) شما می‌توانید: 1. نوع پیام را مشخص کنید (اطلاع‌رسانی، تبلیغاتی به مشتریان، تبلیغاتی به همه) 2. یا شماره ارسال را مستقیماً تعیین کنید
+
+Authorizations:
+ApiKeyAuth
+Request Body schema: application/json
+required
+One of SendSmsNormalWithTypeSendSmsNormalWithNumber
+type
+required
+string
+Enum: "Informational" "PromotionalToCustomers" "PromotionalAll"
+نوع پیام که تعیین می‌کند ارسال از کدام خط انجام شود
+
+recipients
+required
+Array of strings
+فهرست شماره موبایل گیرندگان
+
+messageText
+required
+string
+متن پیامی که ارسال می‌شود
+
+dateTime	
+string
+زمان‌بندی ارسال برای آینده. برای ارسال فوری خالی بگذارید
+
+Responses
+200 پاسخ موفقیت‌آمیز
+400 خطای 400
+401 خطای احراز هویت
+500 خطای داخلی سرور
+
+post
+/sms/v1/send/sms
+
+Request samples
+Payload
+Content type
+application/json
+Example
+
+SendSmsNormalWithType
+SendSmsNormalWithType
+
+Copy
+Expand allCollapse all
+{
+"type": "Informational",
+"recipients": [
+"09123456789",
+"09121234567"
+],
+"messageText": "مشتری گرامی، سفارش شما با موفقیت ثبت شد.",
+"dateTime": "2026-09-20T14:30:00"
+}
+Response samples
+200400500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"meta": {
+"requestId": "929de9cf-e4aa-4eba-af85-10eb3a4b2b3d",
+"code": "OK",
+"errorMessage": null,
+"errors": null
+},
+"data": {
+"succeed": true,
+"requestId": 187484315,
+"requestCode": "187484315",
+"message": "در حال ساخت",
+"status": "PendingApproval",
+"statusInt": 2,
+"totalPrice": 2284,
+"smsItems": [],
+"clientRef": null
+},
+"pagination": null
+}
+ارسال پیامک الگو
+ارسال پیامک با استفاده از کد الگوی از پیش تعریف شده
+
+Authorizations:
+ApiKeyAuth
+Request Body schema: application/json
+required
+One of SendSmsPatternWithTypeSendSmsPatternWithNumber
+type
+required
+string
+Enum: "Informational" "PromotionalToCustomers" "PromotionalAll"
+نوع پیام که تعیین می‌کند ارسال از کدام خط انجام شود
+
+recipients
+required
+Array of strings <= 1 items
+شماره موبایل گیرنده (تنها یک گیرنده مجاز است)
+
+patternCode
+required
+string
+کد پترنی که برای ارسال پیام استفاده می‌شود
+
+parameters	
+object
+جفت‌های کلید و مقدار که جایگاه‌های تعریف‌شده در پترن را پر می‌کنند
+
+Responses
+200 پاسخ موفقیت‌آمیز
+400 خطای 400
+401 خطای احراز هویت
+500 خطای داخلی سرور
+
+post
+/sms/v1/send/pattern
+
+Request samples
+Payload
+Content type
+application/json
+Example
+
+SendSmsPatternWithType
+SendSmsPatternWithType
+
+Copy
+Expand allCollapse all
+{
+"type": "Informational",
+"recipients": [
+"09123456789"
+],
+"patternCode": "110022",
+"parameters": {
+"name": "علی رضایی",
+"code": "48213"
+}
+}
+Response samples
+200400500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"meta": {
+"requestId": "929de9cf-e4aa-4eba-af85-10eb3a4b2b3d",
+"code": "OK",
+"errorMessage": null,
+"errors": null
+},
+"data": {
+"succeed": true,
+"requestId": 187484315,
+"requestCode": "187484315",
+"message": "در حال ساخت",
+"status": "PendingApproval",
+"statusInt": 2,
+"totalPrice": 2284,
+"smsItems": [],
+"clientRef": null
+},
+"pagination": null
+}
+ارسال پیامک نظیر به نظیر
+ارسال پیام‌های شخصی‌سازی شده به چندین گیرنده (حداکثر 1000) شما می‌توانید: 1. نوع پیام را مشخص کنید (اطلاع‌رسانی، تبلیغاتی به مشتریان، تبلیغاتی به همه) 2. یا شماره ارسال را مستقیماً تعیین کنید
+
+Authorizations:
+ApiKeyAuth
+Request Body schema: application/json
+required
+One of SendSmsP2PWithTypeSendSmsP2PWithNumber
+Type
+required
+string or null
+Enum: "Informational" "PromotionalToCustomers" "PromotionalAll" "Otp"
+نوع پیام که تعیین می‌کند ارسال از کدام خط انجام شود
+
+Requests
+required
+Array of objects
+فهرست پیام‌های اختصاصی هر گیرنده در این درخواست
+
+Responses
+200 پاسخ موفقیت‌آمیز
+400 خطای 400
+401 خطای احراز هویت
+500 خطای داخلی سرور
+
+post
+/sms/v1/send/array
+
+Request samples
+Payload
+Content type
+application/json
+Example
+
+SendSmsP2PWithType
+SendSmsP2PWithType
+
+Copy
+Expand allCollapse all
+{
+"Type": "Informational",
+"Requests": [
+{},
+{}
+]
+}
+Response samples
+200400500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"meta": {
+"code": "string",
+"errorMessage": "string",
+"errors": []
+},
+"data": {
+"TotalSent": 0,
+"TotalRequested": 0,
+"RefCodes": []
+}
+}
+بررسی وضعیت تحویل
+وضعیت تحویل یک پیام را با شناسه درخواست پیامک کنید.
+
+Authorizations:
+ApiKeyAuth
+path Parameters
+requestId
+required
+string
+The unique identifier of the SMS request to check status for
+
+Responses
+200 پاسخ موفقیت‌آمیز
+400 خطای 400
+401 خطای احراز هویت
+500 خطای داخلی سرور
+
+get
+/sms/v1/send-requests/status/{requestId}
+
+Response samples
+200400500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"data": {
+"status": "string",
+"smsItems": []
+}
+}
+دریافت وضعیت پیامک
+وضعیت تحویل یک پیام را با شناسه درخواست بررسی کنید.
+
+Authorizations:
+ApiKeyAuth
+path Parameters
+smsId
+required
+string
+The unique identifier of the SMS to check status for
+
+Responses
+200 پاسخ موفقیت‌آمیز
+400 خطای 400
+401 خطای احراز هویت
+500 خطای داخلی سرور
+
+get
+/sms/v1/send-requests/status/sms-item/{smsId}
+
+Response samples
+200400500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"meta": { },
+"data": {
+"SmsItemId": "string",
+"Recipient": "string",
+"Status": "Duplicated"
+}
+}
+دریافت وضعیت لیست پیامک
+وضعیت تحویل چندین آیتم پیامک را با شناسه‌های آن‌ها بازیابی کنید
+
+Authorizations:
+ApiKeyAuth
+query Parameters
+messageCodes
+required
+Array of strings
+List of message codes to retrieve statuses for
+
+Responses
+200 پاسخ موفقیت‌آمیز
+400 خطای 400
+401 خطای احراز هویت
+500 خطای داخلی سرور
+
+get
+/sms/v1/send-requests/status/sms-list
+
+Response samples
+200400500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+[
+{
+"meta": { },
+"data": {}
+}
+]
+دریافت شماره‌های ارسال
+لیست شماره‌های ارسال فعال خود را دریافت کنید.
+
+Authorizations:
+ApiKeyAuth
+Responses
+200 پاسخ موفقیت‌آمیز
+400 خطای 400
+401 خطای احراز هویت
+500 خطای داخلی سرور
+
+get
+/sms/v1/account/lines
+
+Response samples
+200400500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"lines": [
+{}
+]
+}
+دریافت پیام‌های صندوق ورودی
+پیام‌ها را از صندوق ورودی با وضعیت خاصی دریافت کنید
+
+Authorizations:
+ApiKeyAuth
+query Parameters
+destination	
+Array of strings
+List of destination numbers
+
+from	
+Array of strings
+List of sender phone numbers
+
+fromDate	
+string <date-time>
+Filter messages received from this date
+
+toDate	
+string <date-time>
+Filter messages received up to this date
+
+status	
+string
+Enum: "Unknown" "New" "Replied" "Viewed" "Archived"
+Filter messages by status
+
+skip	
+integer
+Default: 0
+Number of items to skip
+
+take	
+integer
+Default: 10
+Number of items to take
+
+sort	
+string
+Example: sort=ReceiveDateTime:desc
+Properties to sort by, e.g., ReceiveDateTime
+
+Responses
+200 پاسخ موفقیت‌آمیز
+400 خطای 400
+401 خطای احراز هویت
+500 خطای داخلی سرور
+
+get
+/sms/v1/send-requests/inbox
+
+Response samples
+200400500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"data": [
+{}
+],
+"pagination": {
+"total": 0
+}
+}
+پیام‌رسان
+ارسال رمز یکبار مصرف
+ارسال یک رمز عبور یک‌بار مصرف به گیرنده از طریق پیام‌رسان
+
+Authorizations:
+ApiKeyAuth
+Request Body schema: application/json
+required
+otp
+required
+string
+رمز یکبار مصرفی که ارسال می‌شود
+
+patternCode
+required
+string
+کد پترنی که برای ارسال پیام استفاده می‌شود
+
+sendingNumber
+required
+string
+شماره‌ای که پیام از آن ارسال می‌شود
+
+recipient
+required
+string
+شماره موبایل گیرنده
+
+messengerType	
+string
+Default: "Bale"
+Enum: "whatsapp" "Telegram" "Bale" "Igap" "Gap" "Eitaa" "Sorush" "Rubika"
+پیام‌رسانی که پیام از طریق آن ارسال می‌شود
+
+Responses
+200 پاسخ موفقیت‌آمیز
+400 خطای 400
+401 خطای احراز هویت
+500 خطای داخلی سرور
+
+post
+/Messenger/v1/send/otp
+
+Request samples
+Payload
+Content type
+application/json
+
+Copy
+{
+"otp": "48213",
+"patternCode": "110022",
+"sendingNumber": "09123456789",
+"recipient": "09123456789",
+"messengerType": "Bale"
+}
+Response samples
+200400500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"meta": {
+"requestId": "929de9cf-e4aa-4eba-af85-10eb3a4b2b3d",
+"code": "OK",
+"errorMessage": null,
+"errors": null
+},
+"data": {
+"succeed": true,
+"requestId": 187484315,
+"requestCode": "187484315",
+"message": "در حال ساخت",
+"status": "PendingApproval",
+"statusInt": 2,
+"totalPrice": 2284,
+"smsItems": [],
+"clientRef": null
+},
+"pagination": null
+}
+ارسال پیام
+ارسال پیام به یک یا چند گیرنده از طریق پیام‌رسان
+
+Authorizations:
+ApiKeyAuth
+Request Body schema: application/json
+required
+sendingNumber
+required
+string
+شماره‌ای که پیام از آن ارسال می‌شود
+
+recipients
+required
+Array of strings
+فهرست شماره موبایل گیرندگان
+
+messageText
+required
+string
+متن پیامی که ارسال می‌شود
+
+messengerType
+required
+string
+Default: "Bale"
+Enum: "whatsapp" "Telegram" "Bale" "Igap" "Gap" "Eitaa" "Sorush" "Rubika"
+پیام‌رسانی که پیام از طریق آن ارسال می‌شود
+
+Responses
+200 پاسخ موفقیت‌آمیز
+400 خطای 400
+401 خطای احراز هویت
+500 خطای داخلی سرور
+
+post
+/Messenger/v1/send/message
+
+Request samples
+Payload
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"sendingNumber": "09123456789",
+"recipients": [
+"09123456789"
+],
+"messageText": "تست پیام رسان مدیانا",
+"messengerType": "Bale"
+}
+Response samples
+200400500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"meta": {
+"requestId": "929de9cf-e4aa-4eba-af85-10eb3a4b2b3d",
+"code": "OK",
+"errorMessage": null,
+"errors": null
+},
+"data": {
+"succeed": true,
+"requestId": 187484315,
+"requestCode": "187484315",
+"message": "در حال ساخت",
+"status": "PendingApproval",
+"statusInt": 2,
+"totalPrice": 2284,
+"smsItems": [],
+"clientRef": null
+},
+"pagination": null
+}
+ارسال پیام الگو
+ارسال پیامی با استفاده از کد الگوی از پیش تعریف شده از طریق پیام‌رسان
+
+Authorizations:
+ApiKeyAuth
+Request Body schema: application/json
+required
+sendingNumber
+required
+string
+شماره‌ای که پیام از آن ارسال می‌شود
+
+recipients
+required
+Array of strings <= 1 items
+شماره موبایل گیرنده (تنها یک گیرنده مجاز است)
+
+messengerType
+required
+string
+Default: "Bale"
+Enum: "whatsapp" "Telegram" "Bale" "Igap" "Gap" "Eitaa" "Sorush" "Rubika"
+پیام‌رسانی که پیام از طریق آن ارسال می‌شود
+
+patternCode
+required
+string
+کد پترنی که برای ارسال پیام استفاده می‌شود
+
+parameters	
+object
+جفت‌های کلید و مقدار که جایگاه‌های تعریف‌شده در پترن را پر می‌کنند
+
+Responses
+200 پاسخ موفقیت‌آمیز
+400 خطای 400
+401 خطای احراز هویت
+500 خطای داخلی سرور
+
+post
+/Messenger/v1/send/pattern
+
+Request samples
+Payload
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"sendingNumber": "09123456789",
+"recipients": [
+"09123456789"
+],
+"messengerType": "Bale",
+"patternCode": "110022",
+"parameters": {
+"name": "علی رضایی",
+"code": "48213"
+}
+}
+Response samples
+200400500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"meta": {
+"requestId": "929de9cf-e4aa-4eba-af85-10eb3a4b2b3d",
+"code": "OK",
+"errorMessage": null,
+"errors": null
+},
+"data": {
+"succeed": true,
+"requestId": 187484315,
+"requestCode": "187484315",
+"message": "در حال ساخت",
+"status": "PendingApproval",
+"statusInt": 2,
+"totalPrice": 2284,
+"smsItems": [],
+"clientRef": null
+},
+"pagination": null
+}
+ایمیل
+ارسال ایمیل
+ارسال یک پیام ایمیل به یک یا چند گیرنده (حداکثر 100)
+
+Authorizations:
+ApiKeyAuth
+Request Body schema: application/json
+required
+From
+required
+string <email>
+آدرس ایمیل فرستنده
+
+To
+required
+Array of strings <email> [ items <email > ]
+فهرست آدرس‌های ایمیل گیرندگان
+
+Cc	
+Array of strings <email> [ items <email > ]
+فهرست آدرس‌های ایمیل رونوشت
+
+Subject	
+string or null
+موضوع ایمیل
+
+Body
+required
+string
+محتوای متن ایمیل
+
+IsHtml
+required
+boolean
+اگر محتوای ایمیل HTML است، مقدار true قرار دهید
+
+Responses
+200 پاسخ موفقیت‌آمیز
+400 خطای 400
+401 خطای احراز هویت
+500 خطای داخلی سرور
+
+post
+/Email/v1/send/message
+
+Request samples
+Payload
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"From": "noreply@example.com",
+"To": [
+"ali.rezaei@example.com"
+],
+"Cc": [
+"support@example.com"
+],
+"Subject": "تأیید سفارش",
+"Body": "<p>مشتری گرامی، سفارش شما با موفقیت ثبت شد.</p>",
+"IsHtml": true
+}
+Response samples
+200400500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"meta": {
+"requestId": "929de9cf-e4aa-4eba-af85-10eb3a4b2b3d",
+"code": "OK",
+"errorMessage": null,
+"errors": null
+},
+"data": {
+"succeed": true,
+"requestId": 187484315,
+"requestCode": "187484315",
+"message": "در حال ساخت",
+"status": "PendingApproval",
+"statusInt": 2,
+"totalPrice": 2284,
+"smsItems": [],
+"clientRef": null
+},
+"pagination": null
+}
+ارسال الگوی ایمیل
+ارسال ایمیل با استفاده از کد الگوی از پیش تعریف شده
+
+Authorizations:
+ApiKeyAuth
+Request Body schema: application/json
+required
+From
+required
+string <email>
+آدرس ایمیل فرستنده
+
+To
+required
+Array of strings <email> [ items <email > ]
+فهرست آدرس‌های ایمیل گیرندگان
+
+Cc	
+Array of strings <email> [ items <email > ]
+فهرست آدرس‌های ایمیل رونوشت
+
+Bcc	
+Array of strings <email> [ items <email > ]
+فهرست آدرس‌های ایمیل رونوشت پنهان
+
+Subject	
+string or null
+موضوع ایمیل
+
+PatternCode
+required
+string
+کد پترنی که برای ارسال پیام استفاده می‌شود
+
+Parameters
+required
+object
+جفت‌های کلید و مقدار که جایگاه‌های تعریف‌شده در پترن را پر می‌کنند
+
+Attachments	
+Array of objects
+فایل‌هایی که به ایمیل پیوست می‌شوند
+
+Responses
+200 پاسخ موفقیت‌آمیز
+400 خطای 400
+401 خطای احراز هویت
+500 خطای داخلی سرور
+
+post
+/Email/v1/send/pattern
+
+Request samples
+Payload
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"From": "noreply@example.com",
+"To": [
+"ali.rezaei@example.com"
+],
+"Cc": [
+"support@example.com"
+],
+"Bcc": [
+"archive@example.com"
+],
+"Subject": "تأیید سفارش",
+"PatternCode": "110022",
+"Parameters": {
+"name": "علی رضایی",
+"code": "48213"
+},
+"Attachments": [
+{}
+]
+}
+Response samples
+200400500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"meta": { },
+"data": { }
+}
+پیام صوتی
+ارسال OTP صوتی
+ارسال یک رمز عبور یک‌بار مصرف به گیرنده از طریق تماس صوتی
+
+Authorizations:
+ApiKeyAuth
+Request Body schema: application/json
+required
+recipient
+required
+string
+شماره موبایل گیرنده
+
+otp
+required
+string
+رمز یکبار مصرفی که ارسال می‌شود
+
+Responses
+200 پاسخ موفقیت‌آمیز
+400 خطای 400
+401 خطای احراز هویت
+500 خطای داخلی سرور
+
+post
+/Voip/v1/send/otp
+
+Request samples
+Payload
+Content type
+application/json
+
+Copy
+{
+"recipient": "09123456789",
+"otp": "48213"
+}
+Response samples
+200400500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"meta": {
+"requestId": "929de9cf-e4aa-4eba-af85-10eb3a4b2b3d",
+"code": "OK",
+"errorMessage": null,
+"errors": null
+},
+"data": {
+"succeed": true,
+"requestId": 187484315,
+"requestCode": "187484315",
+"message": "در حال ساخت",
+"status": "PendingApproval",
+"statusInt": 2,
+"totalPrice": 2284,
+"smsItems": [],
+"clientRef": null
+},
+"pagination": null
+}
+عمومی
+دریافت جزئیات الگو
+جزئیات یک الگوی خاص را با شناسه آن دریافت کنید
+
+Authorizations:
+ApiKeyAuth
+path Parameters
+patternCode
+required
+string
+The unique code of the SMS pattern to retrieve
+
+Responses
+200 پاسخ موفقیت‌آمیز
+400 خطای 400
+401 خطای احراز هویت
+500 خطای داخلی سرور
+
+get
+/sms/v1/get/pattern/{patternCode}
+
+Response samples
+200400500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"data": {
+"messagePatternId": 0,
+"title": "string",
+"type": "string",
+"isUsable": true,
+"code": "string",
+"description": "string",
+"thePattern": {},
+"settingInfo": {},
+"patterns": [],
+"CreateDate": "2019-08-24T14:15:22Z"
+}
+}
+دریافت کد الگو بر اساس عنوان
+جستجو و دریافت الگوهایی که با عنوان خاصی مطابقت دارند
+
+Authorizations:
+ApiKeyAuth
+path Parameters
+patternTitle
+required
+string
+The unique code of the SMS pattern to retrieve
+
+Responses
+200 پاسخ موفقیت‌آمیز
+400 خطای 400
+401 خطای احراز هویت
+500 خطای داخلی سرور
+
+get
+/sms/v1/get/pattern-title/{patternTitle}
+
+Response samples
+200400500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"data": {
+"patternCodes": []
+}
+}
+دریافت موجودی حساب
+موجودی فعلی حساب خود را دریافت کنید
+
+Authorizations:
+ApiKeyAuth
+Responses
+200 پاسخ موفقیت‌آمیز
+400 خطای 400
+401 خطای احراز هویت
+500 خطای داخلی سرور
+
+get
+/sms/v1/account/balance
+
+Response samples
+200400500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"data": {
+"balance": 0
+}
+}
+پیام‌رسانی چند کاناله
+رمز یکبار مصرف
+ارسال یک رمز عبور یک‌بار مصرف به گیرنده از طریق چندین کانال (پیامک، پیام‌رسان، ایمیل) بر اساس اولویت و تنظیمات تعریف شده توسط کاربر.
+
+Authorizations:
+ApiKeyAuth
+Request Body schema: application/json
+required
+otp
+required
+string
+رمز یکبار مصرفی که ارسال می‌شود
+
+patternCode
+required
+string
+کد پترنی که برای ارسال پیام استفاده می‌شود
+
+configCode
+required
+string
+کد پیکربندی که اولویت و کانال‌های ارسال را تعیین می‌کند. آن را در پنل مدیانا در بخش توسعه‌دهنده ← اولویت‌یندی کانال‌ها تعریف کنید
+
+recipient
+required
+string
+اطلاعات تماس گیرنده (شماره موبایل یا آدرس ایمیل)
+
+Responses
+200 پاسخ موفقیت‌آمیز
+400 خطای 400
+401 خطای احراز هویت
+500 خطای داخلی سرور
+
+post
+/omnichannel/v1/send/otp
+
+Request samples
+Payload
+Content type
+application/json
+
+Copy
+{
+"otp": "48213",
+"patternCode": "110022",
+"configCode": "110022",
+"recipient": "09123456789"
+}
+Response samples
+200400500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"meta": {
+"code": "string",
+"errorMessage": "string",
+"errors": []
+},
+"data": {
+"omniChannelRequestId": 0
+}
+}
+ارسال عادی
+ارسال یک پیام استاندارد به گیرنده از طریق چندین کانال (پیامک، پیام‌رسان، ایمیل) بر اساس اولویت و تنظیمات تعریف شده توسط کاربر.
+
+Authorizations:
+ApiKeyAuth
+Request Body schema: application/json
+required
+messageText
+required
+string
+متن پیامی که ارسال می‌شود
+
+configCode
+required
+string
+کد پیکربندی که اولویت و کانال‌های ارسال را تعیین می‌کند. آن را در پنل مدیانا در بخش توسعه‌دهنده ← اولویت‌یندی کانال‌ها تعریف کنید
+
+recipient
+required
+string
+اطلاعات تماس گیرنده (شماره موبایل یا آدرس ایمیل)
+
+type	
+string
+Enum: "Informational" "PromotionalToCustomers" "PromotionalAll"
+نوع پیام که تعیین می‌کند ارسال از کدام خط انجام شود
+
+Responses
+200 پاسخ موفقیت‌آمیز
+400 خطای 400
+401 خطای احراز هویت
+500 خطای داخلی سرور
+
+post
+/omnichannel/v1/send/normal
+
+Request samples
+Payload
+Content type
+application/json
+
+Copy
+{
+"messageText": "مشتری گرامی، سفارش شما با موفقیت ثبت شد.",
+"configCode": "110022",
+"recipient": "09123456789",
+"type": "Informational"
+}
+Response samples
+200400500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"meta": {
+"code": "string",
+"errorMessage": "string",
+"errors": []
+},
+"data": {
+"omniChannelRequestId": 0
+}
+}
+ارسال الگو
+ارسال پیامی با استفاده از کد الگوی از پیش تعریف شده به گیرنده از طریق چندین کانال (پیامک، پیام‌رسان، ایمیل) بر اساس اولویت و تنظیمات تعریف شده توسط کاربر.
+
+Authorizations:
+ApiKeyAuth
+Request Body schema: application/json
+required
+patternCode
+required
+string
+کد پترنی که برای ارسال پیام استفاده می‌شود
+
+configCode
+required
+string
+کد پیکربندی که اولویت و کانال‌های ارسال را تعیین می‌کند. آن را در پنل مدیانا در بخش توسعه‌دهنده ← اولویت‌یندی کانال‌ها تعریف کنید
+
+recipient
+required
+string
+اطلاعات تماس گیرنده (شماره موبایل یا آدرس ایمیل)
+
+type	
+string
+Enum: "Informational" "PromotionalToCustomers" "PromotionalAll"
+نوع پیام که تعیین می‌کند ارسال از کدام خط انجام شود
+
+parameters
+required
+object
+جفت‌های کلید و مقدار که جایگاه‌های تعریف‌شده در پترن را پر می‌کنند
+
+Responses
+200 پاسخ موفقیت‌آمیز
+400 خطای 400
+401 خطای احراز هویت
+500 خطای داخلی سرور
+
+post
+/omnichannel/v1/send/pattern
+
+Request samples
+Payload
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"patternCode": "110022",
+"configCode": "110022",
+"recipient": "09123456789",
+"type": "Informational",
+"parameters": {
+"name": "علی رضایی",
+"code": "48213"
+}
+}
+Response samples
+200400500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"meta": {
+"code": "string",
+"errorMessage": "string",
+"errors": []
+},
+"data": {
+"omniChannelRequestId": 0
+}
+}
+بررسی وضعیت تحویل
+بررسی وضعیت تحویل پیام های یک درخواست
+
+Authorizations:
+ApiKeyAuth
+path Parameters
+omniChannelRequestId
+required
+string
+The unique Id of the Request
+
+Responses
+200 پاسخ موفقیت‌آمیز
+400 خطای 400
+401 خطای احراز هویت
+500 خطای داخلی سرور
+
+get
+/omnichannel/v1/status/{omniChannelRequestId}
+
+Response samples
+200400500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"status": "Pending",
+"createDate": "2019-08-24T14:15:22Z",
+"RequestItems": [
+{}
+]
+}
+بازاریابی CDP
+سفارش فروشگاه
+ایجاد یک سفارش جدید یا به‌روزرسانی سفارش موجود در سیستم
+
+Authorizations:
+ApiKeyAuth
+Request Body schema: application/json
+required
+id	
+integer
+شناسه سفارش در سامانه شما
+
+orderKey	
+string
+کلید یکتای سفارش
+
+status	
+string
+وضعیت فعلی سفارش، برای نمونه pending یا completed
+
+siteAddress	
+string
+آدرس وب‌سایتی که این داده به آن تعلق دارد
+
+total	
+number <float>
+مبلغ نهایی قابل پرداخت سفارش
+
+subtotal	
+number <float>
+جمع اقلام سفارش پیش از تخفیف و هزینه ارسال
+
+discountTotal	
+number <float>
+مجموع تخفیف اعمال‌شده روی سفارش
+
+shippingTotal	
+number <float>
+مجموع هزینه ارسال سفارش
+
+currency	
+string
+کد واحد پول مبالغ، برای نمونه IRR
+
+paymentMethod	
+string
+روش پرداخت استفاده‌شده برای سفارش
+
+dateCreated	
+string <date-time>
+زمان ایجاد سفارش با قالب ISO 8601
+
+billing	
+object
+آدرس و اطلاعات تماس صورتحساب
+
+shipping	
+object
+آدرس و اطلاعات تماس ارسال
+
+items	
+Array of objects
+اقلامی که سفارش را تشکیل می‌دهند
+
+Responses
+200 پاسخ موفقیت‌آمیز
+400 خطای 400
+401 خطای احراز هویت
+500 خطای داخلی سرور
+
+post
+/journey/v1/e-commerce/order
+
+Request samples
+Payload
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"id": 10241,
+"orderKey": "wc_order_aBc123XyZ",
+"status": "pending",
+"siteAddress": "https://shop.example.com",
+"total": 2450000,
+"subtotal": 2600000,
+"discountTotal": 150000,
+"shippingTotal": 0,
+"currency": "IRR",
+"paymentMethod": "online",
+"dateCreated": "2025-08-18T06:43:51.987Z",
+"billing": {
+"firstName": "علی",
+"lastName": "رضایی",
+"company": "فروشگاه نمونه",
+"address1": "تهران، خیابان ولیعصر، پلاک ۱۲۰",
+"address2": "طبقه دوم، واحد ۳",
+"city": "تهران",
+"state": "تهران",
+"postcode": "1968843561",
+"country": "IR",
+"email": "ali.rezaei@example.com",
+"phone": "09123456789"
+},
+"shipping": {
+"firstName": "علی",
+"lastName": "رضایی",
+"company": "فروشگاه نمونه",
+"address1": "تهران، خیابان ولیعصر، پلاک ۱۲۰",
+"address2": "طبقه دوم، واحد ۳",
+"city": "تهران",
+"state": "تهران",
+"postcode": "1968843561",
+"country": "IR",
+"email": "ali.rezaei@example.com",
+"phone": "09123456789"
+},
+"items": [
+{}
+]
+}
+Response samples
+200400500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"meta": { },
+"data": { }
+}
+ثبت‌نام فروشگاه
+ثبت یک کاربر جدید در سیستم فروشگاه
+
+Authorizations:
+ApiKeyAuth
+Request Body schema: application/json
+required
+userId	
+integer
+شناسه کاربر در سامانه شما
+
+userLogin	
+string
+نام کاربری که کاربر با آن وارد می‌شود
+
+userEmail	
+string <email>
+آدرس ایمیل کاربر
+
+userRegistered	
+string <date-time>
+زمان ثبت‌نام کاربر با قالب ISO 8601
+
+displayName	
+string
+نام نمایشی کاربر
+
+roles	
+Array of strings
+نقش‌های اختصاص‌یافته به کاربر
+
+phone	
+string
+شماره تماس کاربر
+
+siteAddress	
+string
+آدرس وب‌سایتی که این داده به آن تعلق دارد
+
+Responses
+200 پاسخ موفقیت‌آمیز
+400 خطای 400
+401 خطای احراز هویت
+500 خطای داخلی سرور
+
+post
+/journey/v1/e-commerce/signup
+
+Request samples
+Payload
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"userId": 1042,
+"userLogin": "ali.rezaei",
+"userEmail": "ali.rezaei@example.com",
+"userRegistered": "2025-08-18T06:48:07.362Z",
+"displayName": "علی رضایی",
+"roles": [
+"customer"
+],
+"phone": "09123456789",
+"siteAddress": "https://shop.example.com"
+}
+Response samples
+200400500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"meta": { },
+"data": { }
+}
+محصولات فروشگاه
+افزودن یا به‌روزرسانی محصولات در سیستم فروشگاه
+
+Authorizations:
+ApiKeyAuth
+Request Body schema: application/json
+required
+SiteAddress
+required
+string
+آدرس وب‌سایتی که این داده به آن تعلق دارد
+
+Items	
+Array of objects
+محصولاتی که افزوده یا به‌روزرسانی می‌شوند
+
+Responses
+200 پاسخ موفقیت‌آمیز
+400 خطای 400
+401 خطای احراز هویت
+500 خطای داخلی سرور
+
+post
+/journey/v1/e-commerce/products
+
+Request samples
+Payload
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"SiteAddress": "https://shop.example.com",
+"Items": [
+{}
+]
+}
+Response samples
+200400500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"meta": { },
+"data": { }
+}
+مسیرسازی های من
+دریافت لیست کامل مسیرسازی های فعال تعریف شده کاربر
+
+Authorizations:
+ApiKeyAuth
+Responses
+200 پاسخ موفقیت‌آمیز
+400 خطای 400
+401 خطای احراز هویت
+500 خطای داخلی سرور
+
+get
+/journey/v1/e-commerce/my-journeys
+
+Response samples
+200400500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"data": [
+{}
+]
+}
+پیگیری وب
+دریافت اسکریپت پیگیری وب
+دریافت قطعه کد JavaScript برای پیگیری وب
+
+Authorizations:
+ApiKeyAuth
+query Parameters
+domain
+required
+string
+The domain of your website like example.com
+
+Responses
+200 پاسخ موفقیت‌آمیز
+400 خطای 400
+401 خطای احراز هویت
+500 خطای داخلی سرور
+
+get
+/webtracker/v1/webtracker-script
+
+Response samples
+200400500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"meta": { },
+"data": {
+"trackerCode": "string"
+}
+}
+دریافت آمار
+دریافت آمار برای وب‌سایت پیگیری شده برای یک بازه زمانی مشخص
+
+Authorizations:
+ApiKeyAuth
+query Parameters
+domain
+required
+string
+The domain of your website like example.com
+
+periodDays	
+integer
+Default: 7
+Number of days to look back for statistics
+
+Responses
+200 پاسخ موفقیت‌آمیز
+400 خطای 400
+401 خطای احراز هویت
+500 خطای داخلی سرور
+
+get
+/webtracker/v1/stats
+
+Response samples
+200400500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"data": {
+"Domain": "string",
+"Title": "string",
+"Status": "string",
+"Visitors": 0,
+"VisitorsCompare": 0.1,
+"Visits": 0,
+"VisitsCompare": 0.1,
+"PageViews": 0,
+"PageViewsCompare": 0.1,
+"BounceRate": 0.1,
+"BounceRateCompare": 0.1,
+"VisitDuration": 0.1,
+"VisitDurationCompare": 0.1,
+"VisitorsData": {},
+"InputChannelsData": {},
+"PagesData": {},
+"VisitorsFeedback": {}
+}
+}

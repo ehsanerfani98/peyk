@@ -5,7 +5,6 @@ namespace App\Services\Order;
 use App\Models\Order;
 use App\Models\Review;
 use App\Models\SurveyToken;
-use App\Services\Sms\IppanelSmsService;
 use Illuminate\Support\Str;
 
 /**
@@ -19,7 +18,6 @@ use Illuminate\Support\Str;
 final class SurveyService
 {
     public function __construct(
-        private readonly IppanelSmsService $smsService,
         private readonly OrderNotificationService $notificationService,
     ) {}
 

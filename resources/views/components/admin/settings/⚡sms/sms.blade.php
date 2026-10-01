@@ -7,24 +7,33 @@
             <x-select label="حالت ارسال پیامک" wire:model="sms_mode"
                 :options="[
                     ['id' => 'simulator', 'name' => 'شبیه‌ساز (تست)'],
-                    ['id' => 'real', 'name' => 'واقعی (ippanel)'],
+                    ['id' => 'real', 'name' => 'واقعی (مدیانا)'],
                 ]"
-                hint="در حالت شبیه‌ساز، پیامک‌ها به سرور محلی ارسال می‌شوند. در حالت واقعی از طریق ippanel ارسال می‌شوند." />
+                hint="در حالت شبیه‌ساز، پیامک‌ها به سرور محلی ارسال می‌شوند. در حالت واقعی از طریق سرویس مدیانا ارسال می‌شوند." />
             <x-input label="آدرس پایه شبیه‌ساز" wire:model="sms_simulator_base_url"
                 hint="آدرس سرور شبیه‌ساز محلی (پیش‌فرض: http://localhost:3000)" />
         </x-card>
 
         {{-- اطلاعات سرویس --}}
-        <x-card title="اطلاعات سرویس ippanel" icon="o-server" shadow class="mb-4">
-            <x-input label="آدرس پایه API" wire:model="base_url" />
-            <x-input label="توکن احراز هویت" wire:model="token" type="password" />
-            <x-input label="شماره فرستنده" wire:model="from_number" />
+        <x-card title="اطلاعات سرویس مدیانا" icon="o-server" shadow class="mb-4">
+            <x-input label="آدرس پایه API" wire:model="base_url"
+                hint="پیش‌فرض: https://api.mediana.ir" />
+            <x-input label="کلید API" wire:model="api_key" type="password"
+                hint="در هدر X-API-KEY ارسال می‌شود" />
+            <x-select label="نوع پیام (انتخاب خط ارسال)" wire:model="type"
+                :options="[
+                    ['id' => 'Informational', 'name' => 'اطلاع‌رسانی'],
+                    ['id' => 'PromotionalToCustomers', 'name' => 'تبلیغاتی به مشتریان'],
+                    ['id' => 'PromotionalAll', 'name' => 'تبلیغاتی به همه'],
+                ]" />
+            <x-input label="شماره ارسال اختصاصی (اختیاری)" wire:model="sending_number"
+                hint="در صورت مقداردهی، به جای نوع پیام از همین شماره ارسال می‌شود" />
         </x-card>
 
         {{-- OTP --}}
         <x-card title="تنظیمات OTP (ورود/ثبت‌نام)" icon="o-key" shadow class="mb-4">
-            <x-input label="کد پترن OTP" wire:model="otp_pattern_code" />
-            <x-input label="کلید پارامتر OTP" wire:model="otp_param_key" />
+            <x-input label="کد پترن OTP" wire:model="otp_pattern_code"
+                hint="OTP از اندپوینت اختصاصی /sms/v1/send/otp ارسال می‌شود و کلید پارامتر لازم نیست." />
         </x-card>
 
         {{-- لینک تایید --}}
@@ -44,6 +53,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <x-input label="در حال جستجوی پیک" wire:model="pattern_order_searching" />
                 <x-input label="پیک تخصیص یافت" wire:model="pattern_order_courier_assigned" />
+                <x-input label="پیک یافت نشد" wire:model="pattern_courier_not_found" />
                 <x-input label="منتظر تحویل بسته" wire:model="pattern_order_waiting_pickup" />
                 <x-input label="بسته دریافت شد" wire:model="pattern_order_picked_up" />
                 <x-input label="در مسیر تحویل" wire:model="pattern_order_in_transit" />
