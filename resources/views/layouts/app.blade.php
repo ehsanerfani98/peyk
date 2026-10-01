@@ -92,6 +92,10 @@
                     <x-menu-item title="نظرات" icon="o-star" link="{{ route('admin.reviews') }}" />
                 @endcan
 
+                @can('view sms simulator')
+                    <x-menu-item title="شبیه‌ساز پیامک" icon="o-device-phone-mobile" link="{{ route('admin.sms-simulator') }}" />
+                @endcan
+
                 @can('manage settings')
                     <x-menu-sub title="تنظیمات" icon="o-cog-6-tooth">
                         <x-menu-item title="عمومی" icon="o-adjustments-horizontal" link="{{ route('admin.settings.general') }}" />

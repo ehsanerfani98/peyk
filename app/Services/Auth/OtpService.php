@@ -7,6 +7,7 @@ use App\Models\Setting;
 use App\Services\Auth\Exceptions\OtpException;
 use App\Services\Sms\Exceptions\SmsSendingException;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 final class OtpService
 {
@@ -37,10 +38,18 @@ final class OtpService
             true,
             now()->addSeconds((int) Setting::getValue('otp.resend_seconds', config('otp.resend_seconds'))),
         );
+        $patternCode = $this->smsSender->resolvePatternCode('otp_pattern_code');
+
+        if (! $patternCode) {
+            Log::info('sms.pattern_not_configured', ['key' => 'otp_pattern_code']);
+
+            return;
+        }
+
         $this->smsSender->sendOtp(
             localMobile: $mobile,
             otpCode: $code,
-            patternCode: (string) Setting::getValue('ippanel.otp_pattern_code', config('mediana.otp_pattern_code')),
+            patternCode: $patternCode,
         );
     }
 

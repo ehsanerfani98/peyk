@@ -60,6 +60,7 @@ new #[Layout('layouts.app')] #[Title('لاگ فعالیت مدیران')] class 
             'settings.courier_search_updated' => 'به‌روزرسانی تنظیمات جستجوی پیک',
             'settings.payment_updated' => 'به‌روزرسانی تنظیمات پرداخت',
             'settings.sms_updated' => 'به‌روزرسانی تنظیمات پیامک',
+            'sms_simulator.cleared' => 'خالی کردن جدول شبیه‌ساز پیامک',
             'customer.toggle_block' => 'مسدودسازی/رفع مسدودیت مشتری',
             default => $action,
         };

@@ -46,15 +46,15 @@ final class OrderNotificationService
     ) {}
 
     /**
-     * خواندن کد پترن از setting (DB) با فال‌بک به config (env).
+     * خواندن کد پترن از طریق رزولور مرکزی SmsSender.
      *
-     * کلیدهای دیتابیس با پیشوند تاریخی `ippanel.` ذخیره شده‌اند.
+     * در حالت شبیه‌ساز کلید منطقی برگردانده می‌شود (بدون وابستگی به کد واقعی)؛
+     * در حالت واقعی کد پترن از setting (DB) با فال‌بک به config (env) خوانده می‌شود
+     * و در صورت خالی بودن null برمی‌گردد تا گارد فراخوان‌کننده فعال شود.
      */
     private function getPatternCode(string $key): ?string
     {
-        $value = Setting::getValue("ippanel.{$key}", config("mediana.{$key}"));
-
-        return is_scalar($value) && $value !== '' ? (string) $value : null;
+        return $this->smsSender->resolvePatternCode($key);
     }
 
     /**

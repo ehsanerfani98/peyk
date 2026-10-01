@@ -57,6 +57,10 @@ Route::middleware(['auth', 'permission:manage reviews'])->prefix('admin')->group
     Route::livewire('/reviews', 'admin.reviews.index')->name('admin.reviews');
 });
 
+Route::middleware(['auth', 'permission:view sms simulator'])->prefix('admin')->group(function () {
+    Route::livewire('/sms-simulator', 'admin.sms-simulator.index')->name('admin.sms-simulator');
+});
+
 Route::middleware(['auth', 'permission:manage customers'])->prefix('admin')->group(function () {
     Route::livewire('/customers', 'admin.customers.index')->name('admin.customers');
     Route::livewire('/customers/{customer}', 'admin.customers.show')->name('admin.customers.show');

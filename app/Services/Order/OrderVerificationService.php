@@ -168,7 +168,7 @@ final class OrderVerificationService
         $link = url("/verify/{$verification->token}");
 
         // کد پترن و کلید پارامتر برای لینک تایید از setting (DB) با فال‌بک به config خوانده می‌شود
-        $patternCode = Setting::getValue('ippanel.verification_link_pattern_code', config('mediana.verification_link_pattern_code'));
+        $patternCode = $this->smsSender->resolvePatternCode('verification_link_pattern_code');
         $paramKey = Setting::getValue('ippanel.verification_link_param_key', config('mediana.verification_link_param_key', 'code'));
 
         if (! $patternCode) {

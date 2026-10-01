@@ -27,8 +27,6 @@ new #[Layout('layouts.app')] #[Title('تنظیمات پیامک')] class extends
     // General
     public string $sms_mode = 'simulator';
 
-    public string $sms_simulator_base_url = '';
-
     public string $base_url = '';
 
     public string $api_key = '';
@@ -105,7 +103,6 @@ new #[Layout('layouts.app')] #[Title('تنظیمات پیامک')] class extends
     public function mount(): void
     {
         $this->sms_mode = (string) Setting::getValue('sms_mode', config('sms_simulator.mode', 'simulator'));
-        $this->sms_simulator_base_url = (string) Setting::getValue('sms_simulator_base_url', config('sms_simulator.base_url', 'http://localhost:3000'));
 
         $this->base_url = $this->medianaSetting('base_url');
         $this->api_key = $this->medianaSetting('api_key');
@@ -164,7 +161,6 @@ new #[Layout('layouts.app')] #[Title('تنظیمات پیامک')] class extends
         $patternPrefix = self::LEGACY_PREFIX;
 
         Setting::setValue('sms_mode', $this->sms_mode, $group);
-        Setting::setValue('sms_simulator_base_url', $this->sms_simulator_base_url, $group);
         Setting::setValue("{$credentialsPrefix}base_url", $this->base_url, $group);
         Setting::setValue("{$credentialsPrefix}api_key", $this->api_key, $group);
         Setting::setValue("{$credentialsPrefix}type", $this->type, $group);

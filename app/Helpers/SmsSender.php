@@ -70,7 +70,7 @@ final class SmsSender
             Sms_Simulator_Send(
                 localMobile: $localMobile,
                 paramValue: $this->simulatorValue($parameters),
-                patternCode: $patternCode,
+                templateKey: $patternCode,
             );
 
             return null;
@@ -101,7 +101,7 @@ final class SmsSender
             Sms_Simulator_Send(
                 localMobile: $localMobile,
                 paramValue: $otpCode,
-                patternCode: $patternCode,
+                templateKey: $patternCode,
             );
 
             return null;
@@ -127,6 +127,25 @@ final class SmsSender
     public function isRealMode(): bool
     {
         return Setting::getValue('sms_mode', config('sms_simulator.mode', 'simulator')) === 'real';
+    }
+
+    /**
+     * رزولور کد پترن بر اساس کلید منطقی.
+     *
+     * در حالت شبیه‌ساز، خودِ کلید منطقی برگردانده می‌شود تا شبیه‌ساز کاملاً
+     * مستقل از کدهای پترن واقعی ذخیره‌شده در دیتابیس کار کند. در حالت واقعی،
+     * کد پترن از setting (DB) با فال‌بک به config (env) خوانده می‌شود و در صورت
+     * خالی بودن، null برگردانده می‌شود تا فراخوان‌کننده از ارسال صرف‌نظر کند.
+     */
+    public function resolvePatternCode(string $logicalKey): ?string
+    {
+        if (! $this->isRealMode()) {
+            return $logicalKey;
+        }
+
+        $value = Setting::getValue("ippanel.{$logicalKey}", config("mediana.{$logicalKey}"));
+
+        return is_scalar($value) && $value !== '' ? (string) $value : null;
     }
 
     /**

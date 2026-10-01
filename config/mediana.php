@@ -164,30 +164,34 @@ return [
     | قالب پیام‌های شبیه‌ساز
     |--------------------------------------------------------------------------
     |
-    | کلیدها همان کد پترن هستند و جای‌گذار :value با مقدار پارامتر جایگزین
-    | می‌شود. برای کدهای پترن تعریف‌نشده، شبیه‌ساز یک پیام عمومی نمایش می‌دهد.
+    | کلیدها «کلید منطقی» هر اطلاع‌رسانی هستند (مثل pattern_order_searching یا
+    | otp_pattern_code)، نه کد پترن واقعی مدیانا. این کار باعث می‌شود حالت
+    | شبیه‌ساز کاملاً مستقل از کدهای پترن ذخیره‌شده در دیتابیس کار کند.
+    | جای‌گذار :value با مقدار پارامتر جایگزین می‌شود و برای کلیدهای تعریف‌نشده،
+    | شبیه‌ساز یک پیام عمومی نمایش می‌دهد.
     |
     */
     'simulator_templates' => [
-        'x7km2n9p4qrst' => 'کد تایید شما :value می‌باشد',
-        'a3b8f2k9m5xyz' => 'لینک تایید سفارش: :value',
-        'z9y4w1v6n2abc' => 'در حال جستجوی پیک برای سفارش :value هستیم',
-        'd5e8r3t7y1uio' => 'پیک برای سفارش :value تعیین شد',
-        'p9l2k5j8h6gfd' => 'سفارش :value آماده تحویل به پیک می‌باشد',
-        's4a7w2q1e6rtz' => 'سفارش :value توسط پیک دریافت شد',
-        'x9c3v6b8n5mlk' => 'سفارش :value در مسیر ارسال می‌باشد',
-        'j1h4g7f0d2asz' => 'سفارش :value تحویل داده شد',
-        'q6w9e3r5t8yui' => 'سفارش :value لغو گردید',
-        'o2p7l1k4m9nbv' => 'سفارش :value آماده تحویل است',
-        'c5x8z3a6s1dgf' => 'سفارش :value توسط پیک دریافت شد',
-        'h7j4k9l2m6qwe' => 'سفارش :value در مسیر است',
-        'r1t5y8u3i0opz' => 'سفارش :value تحویل داده شد',
-        'b4n7v2c6x9zlm' => 'سفارش :value لغو شد',
-        'k8j3h5g2f1dsa' => 'پیک گرامی، سفارش جدید با کد :value برای شما یافت شد',
-        'p0o9i8u7y6tre' => 'پیک گرامی، سفارش :value لغو گردید',
-        'w2e4r5t6y7u8i' => 'سفارش :value به دلیل عدم یافتن پیک لغو شد',
-        'l9k0j1h2g3f4d' => 'لطفا در نظرسنجی شرکت کنید : :value',
-        's5a6z7x8c9v0b' => 'لینک پرداخت سفارش : :value',
+        'otp_pattern_code' => 'کد تایید شما :value می‌باشد',
+        'verification_link_pattern_code' => 'لینک تایید سفارش: :value',
+        'pattern_order_searching' => 'در حال جستجوی پیک برای سفارش :value هستیم',
+        'pattern_courier_not_found' => 'برای سفارش :value پیکی یافت نشد؛ می‌توانید جستجو را مجدداً آغاز کنید یا سفارش را لغو کنید',
+        'pattern_order_courier_assigned' => 'پیک برای سفارش :value تعیین شد',
+        'pattern_order_waiting_pickup' => 'سفارش :value آماده تحویل به پیک می‌باشد',
+        'pattern_order_picked_up' => 'سفارش :value توسط پیک دریافت شد',
+        'pattern_order_in_transit' => 'سفارش :value در مسیر ارسال می‌باشد',
+        'pattern_order_delivered' => 'سفارش :value تحویل داده شد',
+        'pattern_order_cancelled' => 'سفارش :value لغو گردید',
+        'pattern_sender_order_waiting_pickup' => 'سفارش :value آماده تحویل است',
+        'pattern_sender_order_picked_up' => 'سفارش :value توسط پیک دریافت شد',
+        'pattern_sender_order_in_transit' => 'سفارش :value در مسیر است',
+        'pattern_sender_order_delivered' => 'سفارش :value تحویل داده شد',
+        'pattern_sender_order_cancelled' => 'سفارش :value لغو شد',
+        'pattern_courier_offer' => 'پیک گرامی، سفارش جدید با کد :value برای شما یافت شد',
+        'pattern_courier_cancelled' => 'پیک گرامی، سفارش :value لغو گردید',
+        'pattern_system_cancellation' => 'سفارش :value به دلیل عدم یافتن پیک لغو شد',
+        'pattern_survey_link' => 'لطفا در نظرسنجی شرکت کنید : :value',
+        'pattern_cash_on_delivery' => 'لینک پرداخت سفارش : :value',
     ],
 
 ];

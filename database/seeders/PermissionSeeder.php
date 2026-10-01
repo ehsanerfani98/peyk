@@ -26,6 +26,8 @@ class PermissionSeeder extends Seeder
             'manage customers',
             'manage settings',
             'view reports',
+            'view sms simulator',
+            'clear sms simulator',
         ];
 
         foreach ($permissions as $permission) {
