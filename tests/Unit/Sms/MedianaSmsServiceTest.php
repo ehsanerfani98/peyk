@@ -152,14 +152,18 @@ it('throws a mapped exception when the provider rejects the request with an erro
         'data' => ['succeed' => false],
     ], 400)]);
 
+    $exception = null;
+
     try {
         app(MedianaSmsService::class)->sendPattern('09120000000', '110022', ['code' => '1']);
-        $this->fail('انتظار می‌رفت SmsSendingException پرتاب شود.');
-    } catch (SmsSendingException $exception) {
-        expect($exception->getMessage())->toBe('موجودی کیف پول پیامک کافی نیست.')
-            ->and($exception->providerErrorCode())->toBe('1042')
-            ->and($exception->httpStatus())->toBe(400);
+    } catch (SmsSendingException $caught) {
+        $exception = $caught;
     }
+
+    expect($exception)->toBeInstanceOf(SmsSendingException::class)
+        ->and($exception?->getMessage())->toBe('موجودی کیف پول پیامک کافی نیست.')
+        ->and($exception?->providerErrorCode())->toBe('1042')
+        ->and($exception?->httpStatus())->toBe(400);
 });
 
 it('prefers the provider error message over the mapped message', function () {

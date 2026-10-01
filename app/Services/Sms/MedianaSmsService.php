@@ -51,7 +51,10 @@ final class MedianaSmsService implements SmsProvider
         if (is_string($sendingNumber) && $sendingNumber !== '') {
             $payload['sendingNumber'] = $sendingNumber;
         } else {
-            $payload['type'] = $type ?? (string) $this->configValue('type', 'Informational');
+            // مقدار پیش‌فرض در صورت خالی بودن تنظیمات (برای نمونه کش config قدیمی)
+            $resolvedType = $type ?? (string) $this->configValue('type', 'Informational');
+
+            $payload['type'] = $resolvedType !== '' ? $resolvedType : 'Informational';
         }
 
         if ($parameters !== []) {

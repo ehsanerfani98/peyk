@@ -50,7 +50,9 @@ final class OrderNotificationService
      */
     private function getPatternCode(string $key): ?string
     {
-        return Setting::getValue("mediana.{$key}", config("mediana.{$key}"));
+        $value = Setting::getValue("mediana.{$key}", config("mediana.{$key}"));
+
+        return is_scalar($value) && $value !== '' ? (string) $value : null;
     }
 
     /**
@@ -58,7 +60,9 @@ final class OrderNotificationService
      */
     private function getParamKey(string $key, string $default = 'code'): string
     {
-        return Setting::getValue("mediana.{$key}", config("mediana.{$key}", $default));
+        $value = Setting::getValue("mediana.{$key}", config("mediana.{$key}", $default));
+
+        return is_scalar($value) && $value !== '' ? (string) $value : $default;
     }
 
     // ---------------------------------------------------------------
