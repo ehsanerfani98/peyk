@@ -3,17 +3,15 @@
 namespace App\Jobs;
 
 use App\Events\Order\CourierOfferReceived;
-use App\Helpers\SmsSender;
 use App\Models\Order;
 use App\Models\Setting;
 use App\Services\Order\CourierMatchingService;
 use App\Services\Order\OrderNotificationService;
-use App\Services\Sms\Exceptions\SmsSendingException;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 /**
  * جستجوی دوره‌ای پیک برای یک سفارش در وضعیت SEARCHING_COURIER.
@@ -26,6 +24,9 @@ use Illuminate\Support\Facades\Log;
  *
  * ShouldBeUniqueUntilProcessing تضمین می‌کند در هر لحظه حداکثر یک نسخه از این Job
  * برای یک سفارش مشخص در صف در انتظار اجرا باشد (جلوگیری از صف‌های موازی تکراری).
+ *
+ * پیامک پیشنهاد برای هر پیشنهاد فقط یک‌بار ارسال می‌شود (OrderNotificationService::sendCourierOfferLink)
+ * و پیامک «در حال جستجوی پیک» به مشتری هم فقط در اولین اجرای هر چرخه جستجو ارسال می‌شود.
  */
 final class SearchCourierForOrderJob implements ShouldBeUniqueUntilProcessing, ShouldQueue
 {
@@ -33,6 +34,11 @@ final class SearchCourierForOrderJob implements ShouldBeUniqueUntilProcessing, S
 
     public function __construct(
         public readonly int $orderId,
+        /**
+         * آیا این اجرا آغاز یک چرخه جستجوی تازه است؟
+         * برای جلوگیری از ارسال تکراری پیامک «در حال جستجوی پیک» به مشتری در هر دور جستجو.
+         */
+        public readonly bool $isSearchCycleStart = true,
     ) {}
 
     public function uniqueId(): string
@@ -65,15 +71,20 @@ final class SearchCourierForOrderJob implements ShouldBeUniqueUntilProcessing, S
             return;
         }
 
-        // اولین اجرا: اطلاع‌رسانی به مشتری که جستجوی پیک آغاز شده
-        $order->load('customer');
-        $notificationService->notifyCustomerStatusChange($order, 'SEARCHING_COURIER');
+        // اطلاع‌رسانی به مشتری که جستجوی پیک آغاز شده - فقط یک‌بار در ابتدای هر چرخه جستجو
+        if ($this->isSearchCycleStart) {
+            $order->load('customer');
+            $notificationService->notifyCustomerStatusChange($order, 'SEARCHING_COURIER');
+        }
 
         $candidate = $matcher->findCandidate($order);
         if ($candidate) {
             $order->update([
                 'courier_id' => $candidate->courier_id,
                 'courier_offered_at' => now(),
+                // توکن تازه برای لینک تایید پیشنهاد در مرورگر + صفر شدن وضعیت ارسال پیامک
+                'courier_offer_token' => Str::random(64),
+                'courier_offer_sms_sent_at' => null,
             ]);
             $order->changeStatusBySystem('COURIER_OFFERED');
 
@@ -92,35 +103,15 @@ final class SearchCourierForOrderJob implements ShouldBeUniqueUntilProcessing, S
                 'distance_meters' => $candidate->distance ?? null,
             ], $candidate->courier_id);
 
-            // ---- اطلاع‌رسانی پیامکی (fallback) به پیک ----
-            $patternCode = Setting::getValue('ippanel.pattern_courier_offer', config('mediana.pattern_courier_offer'));
-            if ($patternCode) {
-                $courier = $candidate->courier;
-                if ($courier) {
-                    try {
-                        $paramKey = Setting::getValue('ippanel.courier_offer_param_key', config('mediana.courier_offer_param_key', 'code'));
-                        $smsSender = app(SmsSender::class);
-                        $smsSender->send(
-                            localMobile: $courier->user->mobile,
-                            paramValue: url("api/orders/$order->id/accept"),
-                            patternCode: $patternCode,
-                            paramKey: $paramKey,
-                        );
-                    } catch (SmsSendingException $e) {
-                        Log::warning('sms.courier_offer_failed', [
-                            'order_id' => $order->id,
-                            'courier_id' => $candidate->courier_id,
-                            'error' => $e->getMessage(),
-                        ]);
-                    }
-                }
-            }
+            // ---- اطلاع‌رسانی پیامکی (fallback) به پیک: لینک GET قابل کلیک در مرورگر، فقط یک‌بار ----
+            $notificationService->sendCourierOfferLink($order);
 
             return;
         }
 
         $intervalSeconds = (int) Setting::getValue('courier_search.interval_seconds', config('courier_search.interval_seconds', 10));
 
-        self::dispatch($this->orderId)->delay(now()->addSeconds($intervalSeconds));
+        // ادامه همان چرخه جستجو؛ بنابراین isSearchCycleStart = false تا پیامک تکراری به مشتری نرود
+        self::dispatch($this->orderId, false)->delay(now()->addSeconds($intervalSeconds));
     }
 }

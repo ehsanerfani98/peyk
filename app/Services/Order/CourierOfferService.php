@@ -11,9 +11,72 @@ use Illuminate\Support\Facades\DB;
 
 final class CourierOfferService
 {
+    /**
+     * وضعیت‌هایی که نشان می‌دهند پیک این سفارش را پذیرفته است.
+     */
+    private const ACCEPTED_STATUSES = [
+        'COURIER_ACCEPTED',
+        'COURIER_ASSIGNED',
+        'WAITING_PICKUP',
+        'PICKED_UP',
+        'IN_TRANSIT',
+        'DELIVERED',
+        'DELIVERY_FAILED',
+        'RETURNED_TO_SENDER',
+    ];
+
     public function __construct(
         private readonly OrderNotificationService $notificationService,
     ) {}
+
+    /**
+     * یافتن سفارش بر اساس توکن لینک پیشنهاد پیک (لینک قابل کلیک در مرورگر).
+     */
+    public function findByOfferToken(string $token): ?Order
+    {
+        return Order::query()
+            ->where('courier_offer_token', $token)
+            ->with('courier')
+            ->first();
+    }
+
+    /**
+     * وضعیت لینک پیشنهاد پیک:
+     * offered (قابل پذیرش) | accepted (قبلاً پذیرفته شده) | expired (بی‌اعتبار یا منقضی).
+     */
+    public function offerLinkState(Order $order): string
+    {
+        if ($order->status === 'COURIER_OFFERED' && $order->courier_id !== null) {
+            return 'offered';
+        }
+
+        if (in_array($order->status, self::ACCEPTED_STATUSES, true)) {
+            return 'accepted';
+        }
+
+        return 'expired';
+    }
+
+    /**
+     * پذیرش پیشنهاد از طریق لینک پیامکی (توکن) به‌جای توکن Sanctum اپ موبایل.
+     *
+     * پیشنهاد به پیک فعلی سفارش تعلق دارد (order->courier_id)، بنابراین توکن لینک
+     * نقش احراز هویت پیک را بازی می‌کند.
+     *
+     * @throws OrderStateException
+     */
+    public function acceptByOfferToken(string $token): Order
+    {
+        $order = $this->findByOfferToken($token);
+
+        if (! $order || $order->courier_id === null) {
+            throw OrderStateException::invalidTransition('لینک پیشنهاد سفارش نامعتبر یا منقضی شده است.');
+        }
+
+        $this->accept($order, (int) $order->courier_id);
+
+        return $order;
+    }
 
     /**
      * پیک، پیشنهاد سفارش را می‌پذیرد.

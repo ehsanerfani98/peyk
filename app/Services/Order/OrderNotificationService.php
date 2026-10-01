@@ -348,4 +348,92 @@ final class OrderNotificationService
             ]);
         }
     }
+
+    // ---------------------------------------------------------------
+    // ۷. اطلاع‌رسانی لینک پیشنهاد سفارش به پیک (فقط یک‌بار برای هر پیشنهاد)
+    // ---------------------------------------------------------------
+
+    /**
+     * ارسال پیامک لینک تایید پیشنهاد سفارش به پیک.
+     *
+     * لینک از نوع GET است و مستقیماً در مرورگر باز می‌شود؛ پیک با کلیک روی لینک،
+     * پیشنهاد را می‌پذیرد (اندپوینت POST اپ موبایل برای لینک پیامکی مناسب نبود).
+     *
+     * برای هر پیشنهاد فقط یک‌بار پیامک ارسال می‌شود: ستون courier_offer_sms_sent_at
+     * با یک کوئری شرطی (اتمی) رزرو می‌شود؛ اگر پیشنهاد در این فاصله عوض شده باشد
+     * یا پیامک قبلاً ارسال شده باشد، ارسال تکرار نمی‌شود.
+     */
+    public function sendCourierOfferLink(Order $order): void
+    {
+        $patternCode = $this->getPatternCode('pattern_courier_offer');
+
+        if (! $patternCode) {
+            Log::info('sms.pattern_not_configured', ['key' => 'pattern_courier_offer']);
+
+            return;
+        }
+
+        $order->loadMissing('courier');
+
+        if (! $order->courier_offer_token || ! $order->courier) {
+            Log::warning('sms.courier_offer_link_not_available', [
+                'order_id' => $order->id,
+                'has_token' => (bool) $order->courier_offer_token,
+                'has_courier' => (bool) $order->courier,
+            ]);
+
+            return;
+        }
+
+        if (! $this->claimCourierOfferSms($order)) {
+            Log::info('sms.courier_offer_already_sent', ['order_id' => $order->id]);
+
+            return;
+        }
+
+        try {
+            $this->smsSender->send(
+                localMobile: $order->courier->mobile,
+                paramValue: route('courier.offer', ['token' => $order->courier_offer_token]),
+                patternCode: $patternCode,
+                paramKey: $this->getParamKey('courier_offer_param_key'),
+            );
+        } catch (SmsSendingException $e) {
+            // ارسال ناموفق: رزرو آزاد می‌شود تا برای همین پیشنهاد امکان تلاش مجدد بماند
+            $this->releaseCourierOfferSmsClaim($order);
+
+            Log::warning('sms.courier_offer_failed', [
+                'order_id' => $order->id,
+                'courier_id' => $order->courier_id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * رزرو اتمی ارسال پیامک برای پیشنهاد فعلی.
+     *
+     * true یعنی همین فراخوانی مسئول ارسال است (و پیامک تکراری ارسال نمی‌شود).
+     */
+    private function claimCourierOfferSms(Order $order): bool
+    {
+        $claimed = Order::query()
+            ->whereKey($order->getKey())
+            ->where('courier_offer_token', $order->courier_offer_token)
+            ->whereNull('courier_offer_sms_sent_at')
+            ->update(['courier_offer_sms_sent_at' => now()]);
+
+        return $claimed === 1;
+    }
+
+    /**
+     * آزادسازی رزرو ارسال پیامک - فقط برای همان پیشنهادی که رزرو شده بود.
+     */
+    private function releaseCourierOfferSmsClaim(Order $order): void
+    {
+        Order::query()
+            ->whereKey($order->getKey())
+            ->where('courier_offer_token', $order->courier_offer_token)
+            ->update(['courier_offer_sms_sent_at' => null]);
+    }
 }

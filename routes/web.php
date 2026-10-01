@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\PaymentController;
-use App\Jobs\SearchCourierForOrderJob;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -94,5 +93,8 @@ Route::livewire('/pay/{orderId}/success', 'payment.success')->name('payment.succ
 Route::livewire('/pay/{orderId}/failed', 'payment.failed')->name('payment.failed');
 
 Route::livewire('/verify/{token}', 'verify.confirm')->name('verification.confirm');
+
+// لینک پیامکی تایید/پذیرش پیشنهاد سفارش توسط پیک (GET و قابل باز شدن در مرورگر)
+Route::livewire('/courier-offer/{token}', 'courier.offer')->name('courier.offer');
 
 Route::livewire('/survey/{token}', 'survey.form')->name('survey.form');
