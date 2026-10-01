@@ -143,9 +143,9 @@ new #[Layout('layouts.app')] #[Title('مدیریت کاربران')] class exten
         abort_unless(auth()->user()->can('manage users'), 403);
 
         $this->validate([
-            'editName' => 'required|string|max:255',
-            'editEmail' => 'nullable|email|unique:users,email,'.$this->editingUserInfoId,
-            'editMobile' => 'nullable|string|regex:/^(09[0-9]{9}|\+989[0-9]{9})$/|unique:users,mobile,'.$this->editingUserInfoId,
+            'editName' => ['required', 'string', 'max:255'],
+            'editEmail' => ['nullable', 'email', 'unique:users,email,'.$this->editingUserInfoId],
+            'editMobile' => ['nullable', 'string', 'regex:/^(09[0-9]{9}|\+989[0-9]{9})$/', 'unique:users,mobile,'.$this->editingUserInfoId],
         ], [], [
             'editName' => 'نام',
             'editEmail' => 'ایمیل',
@@ -223,11 +223,11 @@ new #[Layout('layouts.app')] #[Title('مدیریت کاربران')] class exten
         abort_unless(auth()->user()->can('manage users'), 403);
 
         $this->validate([
-            'createName' => 'required|string|max:255',
-            'createEmail' => 'nullable|email|unique:users,email',
-            'createMobile' => 'nullable|string|regex:/^(09[0-9]{9}|\+989[0-9]{9})$/|unique:users,mobile',
-            'createPassword' => 'required|confirmed|min:8',
-            'createRoles' => 'required|array|min:1',
+            'createName' => ['required', 'string', 'max:255'],
+            'createEmail' => ['nullable', 'email', 'unique:users,email'],
+            'createMobile' => ['nullable', 'string', 'regex:/^(09[0-9]{9}|\+989[0-9]{9})$/', 'unique:users,mobile'],
+            'createPassword' => ['required', 'confirmed', 'min:8'],
+            'createRoles' => ['required', 'array', 'min:1'],
         ], [], [
             'createName' => 'نام',
             'createEmail' => 'ایمیل',
