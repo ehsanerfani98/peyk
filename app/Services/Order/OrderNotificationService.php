@@ -47,10 +47,12 @@ final class OrderNotificationService
 
     /**
      * خواندن کد پترن از setting (DB) با فال‌بک به config (env).
+     *
+     * کلیدهای دیتابیس با پیشوند تاریخی `ippanel.` ذخیره شده‌اند.
      */
     private function getPatternCode(string $key): ?string
     {
-        $value = Setting::getValue("mediana.{$key}", config("mediana.{$key}"));
+        $value = Setting::getValue("ippanel.{$key}", config("mediana.{$key}"));
 
         return is_scalar($value) && $value !== '' ? (string) $value : null;
     }
@@ -60,7 +62,7 @@ final class OrderNotificationService
      */
     private function getParamKey(string $key, string $default = 'code'): string
     {
-        $value = Setting::getValue("mediana.{$key}", config("mediana.{$key}", $default));
+        $value = Setting::getValue("ippanel.{$key}", config("mediana.{$key}", $default));
 
         return is_scalar($value) && $value !== '' ? (string) $value : $default;
     }

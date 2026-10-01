@@ -40,7 +40,7 @@ final class OtpService
         $this->smsSender->sendOtp(
             localMobile: $mobile,
             otpCode: $code,
-            patternCode: (string) Setting::getValue('mediana.otp_pattern_code', config('mediana.otp_pattern_code')),
+            patternCode: (string) Setting::getValue('ippanel.otp_pattern_code', config('mediana.otp_pattern_code')),
         );
     }
 

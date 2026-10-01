@@ -12,9 +12,17 @@ new #[Layout('layouts.app')] #[Title('تنظیمات پیامک')] class extends
     use Toast;
 
     /**
-     * کلید پیشوند تنظیمات پیامک در دیتابیس.
+     * پیشوند تنظیمات اعتبارنامه سرویس مدیانا در دیتابیس.
      */
-    private const SETTING_PREFIX = 'mediana.';
+    private const MEDIANA_PREFIX = 'mediana.';
+
+    /**
+     * پیشوند تاریخی تنظیمات پیامک در دیتابیس.
+     *
+     * کدهای پترن و کلیدهای پارامتر قبلاً با این پیشوند در جدول settings ذخیره
+     * شده‌اند؛ برای خواندن همان داده‌ها (بدون مهاجرت) این پیشوند حفظ شده است.
+     */
+    private const LEGACY_PREFIX = 'ippanel.';
 
     // General
     public string $sms_mode = 'simulator';
@@ -104,42 +112,42 @@ new #[Layout('layouts.app')] #[Title('تنظیمات پیامک')] class extends
         $this->type = $this->medianaSetting('type', 'Informational');
         $this->sending_number = $this->medianaSetting('sending_number');
 
-        $this->otp_pattern_code = $this->medianaSetting('otp_pattern_code');
+        $this->otp_pattern_code = $this->patternSetting('otp_pattern_code');
 
-        $this->verification_link_pattern_code = $this->medianaSetting('verification_link_pattern_code');
-        $this->verification_link_param_key = $this->medianaSetting('verification_link_param_key', 'code');
+        $this->verification_link_pattern_code = $this->patternSetting('verification_link_pattern_code');
+        $this->verification_link_param_key = $this->patternSetting('verification_link_param_key', 'code');
 
-        $this->order_status_param_key = $this->medianaSetting('order_status_param_key', 'code');
-        $this->non_customer_status_param_key = $this->medianaSetting('non_customer_status_param_key', 'code');
+        $this->order_status_param_key = $this->patternSetting('order_status_param_key', 'code');
+        $this->non_customer_status_param_key = $this->patternSetting('non_customer_status_param_key', 'code');
 
-        $this->pattern_order_searching = $this->medianaSetting('pattern_order_searching');
-        $this->pattern_order_courier_assigned = $this->medianaSetting('pattern_order_courier_assigned');
-        $this->pattern_order_waiting_pickup = $this->medianaSetting('pattern_order_waiting_pickup');
-        $this->pattern_order_picked_up = $this->medianaSetting('pattern_order_picked_up');
-        $this->pattern_order_in_transit = $this->medianaSetting('pattern_order_in_transit');
-        $this->pattern_order_delivered = $this->medianaSetting('pattern_order_delivered');
-        $this->pattern_order_cancelled = $this->medianaSetting('pattern_order_cancelled');
-        $this->pattern_courier_not_found = $this->medianaSetting('pattern_courier_not_found');
+        $this->pattern_order_searching = $this->patternSetting('pattern_order_searching');
+        $this->pattern_order_courier_assigned = $this->patternSetting('pattern_order_courier_assigned');
+        $this->pattern_order_waiting_pickup = $this->patternSetting('pattern_order_waiting_pickup');
+        $this->pattern_order_picked_up = $this->patternSetting('pattern_order_picked_up');
+        $this->pattern_order_in_transit = $this->patternSetting('pattern_order_in_transit');
+        $this->pattern_order_delivered = $this->patternSetting('pattern_order_delivered');
+        $this->pattern_order_cancelled = $this->patternSetting('pattern_order_cancelled');
+        $this->pattern_courier_not_found = $this->patternSetting('pattern_courier_not_found');
 
-        $this->pattern_sender_waiting_pickup = $this->medianaSetting('pattern_sender_order_waiting_pickup');
-        $this->pattern_sender_picked_up = $this->medianaSetting('pattern_sender_order_picked_up');
-        $this->pattern_sender_in_transit = $this->medianaSetting('pattern_sender_order_in_transit');
-        $this->pattern_sender_delivered = $this->medianaSetting('pattern_sender_order_delivered');
-        $this->pattern_sender_cancelled = $this->medianaSetting('pattern_sender_order_cancelled');
+        $this->pattern_sender_waiting_pickup = $this->patternSetting('pattern_sender_order_waiting_pickup');
+        $this->pattern_sender_picked_up = $this->patternSetting('pattern_sender_order_picked_up');
+        $this->pattern_sender_in_transit = $this->patternSetting('pattern_sender_order_in_transit');
+        $this->pattern_sender_delivered = $this->patternSetting('pattern_sender_order_delivered');
+        $this->pattern_sender_cancelled = $this->patternSetting('pattern_sender_order_cancelled');
 
-        $this->pattern_courier_offer = $this->medianaSetting('pattern_courier_offer');
-        $this->courier_offer_param_key = $this->medianaSetting('courier_offer_param_key', 'code');
-        $this->pattern_courier_cancelled = $this->medianaSetting('pattern_courier_cancelled');
-        $this->courier_cancelled_param_key = $this->medianaSetting('courier_cancelled_param_key', 'code');
+        $this->pattern_courier_offer = $this->patternSetting('pattern_courier_offer');
+        $this->courier_offer_param_key = $this->patternSetting('courier_offer_param_key', 'code');
+        $this->pattern_courier_cancelled = $this->patternSetting('pattern_courier_cancelled');
+        $this->courier_cancelled_param_key = $this->patternSetting('courier_cancelled_param_key', 'code');
 
-        $this->pattern_system_cancellation = $this->medianaSetting('pattern_system_cancellation');
-        $this->system_cancellation_param_key = $this->medianaSetting('system_cancellation_param_key', 'code');
+        $this->pattern_system_cancellation = $this->patternSetting('pattern_system_cancellation');
+        $this->system_cancellation_param_key = $this->patternSetting('system_cancellation_param_key', 'code');
 
-        $this->pattern_survey_link = $this->medianaSetting('pattern_survey_link');
-        $this->survey_link_param_key = $this->medianaSetting('survey_link_param_key', 'code');
+        $this->pattern_survey_link = $this->patternSetting('pattern_survey_link');
+        $this->survey_link_param_key = $this->patternSetting('survey_link_param_key', 'code');
 
-        $this->pattern_cash_on_delivery = $this->medianaSetting('pattern_cash_on_delivery');
-        $this->cash_on_delivery_param_key = $this->medianaSetting('cash_on_delivery_param_key', 'code');
+        $this->pattern_cash_on_delivery = $this->patternSetting('pattern_cash_on_delivery');
+        $this->cash_on_delivery_param_key = $this->patternSetting('cash_on_delivery_param_key', 'code');
     }
 
     public function save(): void
@@ -152,54 +160,71 @@ new #[Layout('layouts.app')] #[Title('تنظیمات پیامک')] class extends
         ]);
 
         $group = 'sms';
-        $prefix = $this->prefix();
+        $credentialsPrefix = self::MEDIANA_PREFIX;
+        $patternPrefix = self::LEGACY_PREFIX;
 
         Setting::setValue('sms_mode', $this->sms_mode, $group);
         Setting::setValue('sms_simulator_base_url', $this->sms_simulator_base_url, $group);
-        Setting::setValue("{$prefix}base_url", $this->base_url, $group);
-        Setting::setValue("{$prefix}api_key", $this->api_key, $group);
-        Setting::setValue("{$prefix}type", $this->type, $group);
-        Setting::setValue("{$prefix}sending_number", $this->sending_number, $group);
+        Setting::setValue("{$credentialsPrefix}base_url", $this->base_url, $group);
+        Setting::setValue("{$credentialsPrefix}api_key", $this->api_key, $group);
+        Setting::setValue("{$credentialsPrefix}type", $this->type, $group);
+        Setting::setValue("{$credentialsPrefix}sending_number", $this->sending_number, $group);
 
-        Setting::setValue("{$prefix}otp_pattern_code", $this->otp_pattern_code, $group);
+        Setting::setValue("{$patternPrefix}otp_pattern_code", $this->otp_pattern_code, $group);
 
-        Setting::setValue("{$prefix}verification_link_pattern_code", $this->verification_link_pattern_code, $group);
-        Setting::setValue("{$prefix}verification_link_param_key", $this->verification_link_param_key, $group);
+        Setting::setValue("{$patternPrefix}verification_link_pattern_code", $this->verification_link_pattern_code, $group);
+        Setting::setValue("{$patternPrefix}verification_link_param_key", $this->verification_link_param_key, $group);
 
-        Setting::setValue("{$prefix}order_status_param_key", $this->order_status_param_key, $group);
-        Setting::setValue("{$prefix}non_customer_status_param_key", $this->non_customer_status_param_key, $group);
+        Setting::setValue("{$patternPrefix}order_status_param_key", $this->order_status_param_key, $group);
+        Setting::setValue("{$patternPrefix}non_customer_status_param_key", $this->non_customer_status_param_key, $group);
 
-        Setting::setValue("{$prefix}pattern_order_searching", $this->pattern_order_searching, $group);
-        Setting::setValue("{$prefix}pattern_order_courier_assigned", $this->pattern_order_courier_assigned, $group);
-        Setting::setValue("{$prefix}pattern_order_waiting_pickup", $this->pattern_order_waiting_pickup, $group);
-        Setting::setValue("{$prefix}pattern_order_picked_up", $this->pattern_order_picked_up, $group);
-        Setting::setValue("{$prefix}pattern_order_in_transit", $this->pattern_order_in_transit, $group);
-        Setting::setValue("{$prefix}pattern_order_delivered", $this->pattern_order_delivered, $group);
-        Setting::setValue("{$prefix}pattern_order_cancelled", $this->pattern_order_cancelled, $group);
-        Setting::setValue("{$prefix}pattern_courier_not_found", $this->pattern_courier_not_found, $group);
+        Setting::setValue("{$patternPrefix}pattern_order_searching", $this->pattern_order_searching, $group);
+        Setting::setValue("{$patternPrefix}pattern_order_courier_assigned", $this->pattern_order_courier_assigned, $group);
+        Setting::setValue("{$patternPrefix}pattern_order_waiting_pickup", $this->pattern_order_waiting_pickup, $group);
+        Setting::setValue("{$patternPrefix}pattern_order_picked_up", $this->pattern_order_picked_up, $group);
+        Setting::setValue("{$patternPrefix}pattern_order_in_transit", $this->pattern_order_in_transit, $group);
+        Setting::setValue("{$patternPrefix}pattern_order_delivered", $this->pattern_order_delivered, $group);
+        Setting::setValue("{$patternPrefix}pattern_order_cancelled", $this->pattern_order_cancelled, $group);
+        Setting::setValue("{$patternPrefix}pattern_courier_not_found", $this->pattern_courier_not_found, $group);
 
-        Setting::setValue("{$prefix}pattern_sender_order_waiting_pickup", $this->pattern_sender_waiting_pickup, $group);
-        Setting::setValue("{$prefix}pattern_sender_order_picked_up", $this->pattern_sender_picked_up, $group);
-        Setting::setValue("{$prefix}pattern_sender_order_in_transit", $this->pattern_sender_in_transit, $group);
-        Setting::setValue("{$prefix}pattern_sender_order_delivered", $this->pattern_sender_delivered, $group);
-        Setting::setValue("{$prefix}pattern_sender_order_cancelled", $this->pattern_sender_cancelled, $group);
+        Setting::setValue("{$patternPrefix}pattern_sender_order_waiting_pickup", $this->pattern_sender_waiting_pickup, $group);
+        Setting::setValue("{$patternPrefix}pattern_sender_order_picked_up", $this->pattern_sender_picked_up, $group);
+        Setting::setValue("{$patternPrefix}pattern_sender_order_in_transit", $this->pattern_sender_in_transit, $group);
+        Setting::setValue("{$patternPrefix}pattern_sender_order_delivered", $this->pattern_sender_delivered, $group);
+        Setting::setValue("{$patternPrefix}pattern_sender_order_cancelled", $this->pattern_sender_cancelled, $group);
 
-        Setting::setValue("{$prefix}pattern_courier_offer", $this->pattern_courier_offer, $group);
-        Setting::setValue("{$prefix}courier_offer_param_key", $this->courier_offer_param_key, $group);
-        Setting::setValue("{$prefix}pattern_courier_cancelled", $this->pattern_courier_cancelled, $group);
-        Setting::setValue("{$prefix}courier_cancelled_param_key", $this->courier_cancelled_param_key, $group);
+        Setting::setValue("{$patternPrefix}pattern_courier_offer", $this->pattern_courier_offer, $group);
+        Setting::setValue("{$patternPrefix}courier_offer_param_key", $this->courier_offer_param_key, $group);
+        Setting::setValue("{$patternPrefix}pattern_courier_cancelled", $this->pattern_courier_cancelled, $group);
+        Setting::setValue("{$patternPrefix}courier_cancelled_param_key", $this->courier_cancelled_param_key, $group);
 
-        Setting::setValue("{$prefix}pattern_system_cancellation", $this->pattern_system_cancellation, $group);
-        Setting::setValue("{$prefix}system_cancellation_param_key", $this->system_cancellation_param_key, $group);
+        Setting::setValue("{$patternPrefix}pattern_system_cancellation", $this->pattern_system_cancellation, $group);
+        Setting::setValue("{$patternPrefix}system_cancellation_param_key", $this->system_cancellation_param_key, $group);
 
-        Setting::setValue("{$prefix}pattern_survey_link", $this->pattern_survey_link, $group);
-        Setting::setValue("{$prefix}survey_link_param_key", $this->survey_link_param_key, $group);
+        Setting::setValue("{$patternPrefix}pattern_survey_link", $this->pattern_survey_link, $group);
+        Setting::setValue("{$patternPrefix}survey_link_param_key", $this->survey_link_param_key, $group);
 
-        Setting::setValue("{$prefix}pattern_cash_on_delivery", $this->pattern_cash_on_delivery, $group);
-        Setting::setValue("{$prefix}cash_on_delivery_param_key", $this->cash_on_delivery_param_key, $group);
+        Setting::setValue("{$patternPrefix}pattern_cash_on_delivery", $this->pattern_cash_on_delivery, $group);
+        Setting::setValue("{$patternPrefix}cash_on_delivery_param_key", $this->cash_on_delivery_param_key, $group);
 
         app(ActivityLogger::class)->log('settings.sms_updated', auth()->user());
         $this->success('تنظیمات پیامک ذخیره شد', position: 'toast-bottom toast-end');
+    }
+
+    /**
+     * خواندن اعتبارنامه سرویس مدیانا (base_url/api_key/type/sending_number).
+     */
+    private function medianaSetting(string $key, string $default = ''): string
+    {
+        return $this->stringSetting(self::MEDIANA_PREFIX, $key, $default);
+    }
+
+    /**
+     * خواندن کد پترن یا کلید پارامتر از پیشوند تاریخی `ippanel.`.
+     */
+    private function patternSetting(string $key, string $default = ''): string
+    {
+        return $this->stringSetting(self::LEGACY_PREFIX, $key, $default);
     }
 
     /**
@@ -209,7 +234,7 @@ new #[Layout('layouts.app')] #[Title('تنظیمات پیامک')] class extends
      * یا کش config قدیمی است) به رشته خالی یا مقدار پیش‌فرض تبدیل می‌شوند تا
      * به پراپرتی‌های نوع string اختصاص یابند و TypeError رخ ندهد.
      */
-    private function medianaSetting(string $key, string $default = ''): string
+    private function stringSetting(string $prefix, string $key, string $default): string
     {
         $configured = config("mediana.{$key}", $default);
 
@@ -217,13 +242,8 @@ new #[Layout('layouts.app')] #[Title('تنظیمات پیامک')] class extends
             $configured = $default;
         }
 
-        $stored = Setting::getValue(self::SETTING_PREFIX.$key, $configured);
+        $stored = Setting::getValue($prefix.$key, $configured);
 
         return is_scalar($stored) ? (string) $stored : $default;
-    }
-
-    private function prefix(): string
-    {
-        return self::SETTING_PREFIX;
     }
 };

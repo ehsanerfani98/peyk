@@ -130,3 +130,24 @@ it('prefers stored settings over the config fallback', function () {
     expect($state['api_key'])->toBe('stored-api-key')
         ->and($state['type'])->toBe('PromotionalAll');
 });
+
+it('reads pattern codes and param keys stored under the legacy ippanel prefix', function () {
+    // شرایط سرور: مقادیر قبلی در دیتابیس با پیشوند ippanel. ثبت شده‌اند
+    config()->set('mediana.pattern_order_searching', null);
+    config()->set('mediana.otp_pattern_code', null);
+    config()->set('mediana.order_status_param_key', null);
+
+    Setting::setValue('ippanel.pattern_order_searching', 'z9y4w1v6n2abc', 'sms');
+    Setting::setValue('ippanel.otp_pattern_code', 'x7km2n9p4qrst', 'sms');
+    Setting::setValue('ippanel.order_status_param_key', 'verification-code', 'sms');
+
+    $state = smsSettingsComponentState([
+        'pattern_order_searching',
+        'otp_pattern_code',
+        'order_status_param_key',
+    ]);
+
+    expect($state['pattern_order_searching'])->toBe('z9y4w1v6n2abc')
+        ->and($state['otp_pattern_code'])->toBe('x7km2n9p4qrst')
+        ->and($state['order_status_param_key'])->toBe('verification-code');
+});

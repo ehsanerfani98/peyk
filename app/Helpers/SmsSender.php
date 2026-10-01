@@ -41,7 +41,7 @@ final class SmsSender
         ?string $paramKey = null,
     ): ?SmsSendResult {
         $key = $paramKey ?? (string) Setting::getValue(
-            'mediana.default_param_key',
+            'ippanel.default_param_key',
             config('mediana.default_param_key', 'code'),
         );
 

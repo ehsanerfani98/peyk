@@ -93,12 +93,12 @@ final class SearchCourierForOrderJob implements ShouldBeUniqueUntilProcessing, S
             ], $candidate->courier_id);
 
             // ---- اطلاع‌رسانی پیامکی (fallback) به پیک ----
-            $patternCode = Setting::getValue('mediana.pattern_courier_offer', config('mediana.pattern_courier_offer'));
+            $patternCode = Setting::getValue('ippanel.pattern_courier_offer', config('mediana.pattern_courier_offer'));
             if ($patternCode) {
                 $courier = $candidate->courier;
                 if ($courier) {
                     try {
-                        $paramKey = Setting::getValue('mediana.courier_offer_param_key', config('mediana.courier_offer_param_key', 'code'));
+                        $paramKey = Setting::getValue('ippanel.courier_offer_param_key', config('mediana.courier_offer_param_key', 'code'));
                         $smsSender = app(SmsSender::class);
                         $smsSender->send(
                             localMobile: $courier->user->mobile,
