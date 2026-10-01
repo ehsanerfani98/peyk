@@ -10,6 +10,7 @@ use App\Services\Order\OrderNotificationService;
 use App\Services\Sms\Contracts\SmsProvider;
 use App\Services\Sms\DTO\SmsSendResult;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -106,6 +107,28 @@ it('records the courier offer link sms in the sms simulator table in simulator m
         ->and($message->pattern_code)->toBe('pattern_courier_offer')
         ->and($message->content)->toContain('/courier-offer/offer-token-1')
         ->and($order->fresh()->courier_offer_sms_sent_at)->not->toBeNull();
+});
+
+it('does not silently lose the courier offer sms when the simulator record cannot be stored', function () {
+    Log::spy();
+
+    config()->set('sms_simulator.mode', 'simulator');
+    Setting::setValue('sms_mode', 'simulator', 'sms');
+
+    $order = createCourierOfferLinkOrder();
+
+    // شبیه‌سازی شکست درج: جدول شبیه‌ساز در دسترس نیست
+    Schema::drop('sms_messages');
+
+    app(OrderNotificationService::class)->sendCourierOfferLink($order->fresh());
+
+    // خطای درج باید لاگ شود ...
+    Log::shouldHaveReceived('error')
+        ->withArgs(fn (string $message): bool => $message === 'sms_simulator.store_failed')
+        ->once();
+
+    // ... و رزرو پیامک نباید سوخته باشد تا در فرصت بعدی از دست نرود
+    expect($order->fresh()->courier_offer_sms_sent_at)->toBeNull();
 });
 
 it('accepts the offer by the sms link token', function () {

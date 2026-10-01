@@ -67,17 +67,16 @@ final class SmsSender
         ?string $type = null,
     ): ?SmsSendResult {
         if (! $this->isRealMode()) {
-            // ---- لاگ تشخیصی موقت: شاخه شبیه‌ساز انتخاب شد ----
+            // مقادیر پارامترها (ممکن است شامل توکن/لینک باشد) لاگ نمی‌شوند
             Log::info('sms.dispatch_simulator', [
                 'mobile' => $localMobile,
                 'template_key' => $patternCode,
-                'parameters' => $parameters,
             ]);
 
-            Sms_Simulator_Send(
+            $this->storeInSimulator(
                 localMobile: $localMobile,
                 paramValue: $this->simulatorValue($parameters),
-                templateKey: $patternCode,
+                patternCode: $patternCode,
             );
 
             return null;
@@ -115,10 +114,10 @@ final class SmsSender
     public function sendOtp(string $localMobile, string $otpCode, string $patternCode): ?SmsSendResult
     {
         if (! $this->isRealMode()) {
-            Sms_Simulator_Send(
+            $this->storeInSimulator(
                 localMobile: $localMobile,
                 paramValue: $otpCode,
-                templateKey: $patternCode,
+                patternCode: $patternCode,
             );
 
             return null;
@@ -163,6 +162,28 @@ final class SmsSender
         $value = Setting::getValue("ippanel.{$logicalKey}", config("mediana.{$logicalKey}"));
 
         return is_scalar($value) && $value !== '' ? (string) $value : null;
+    }
+
+    /**
+     * ثبت پیامک در شبیه‌ساز محلی با تضمین اینکه رکورد واقعاً ذخیره شده است.
+     *
+     * درج ناموفق در جدول `sms_messages` (مثلاً به دلیل مشکل دیتابیس) نباید بی‌صدا
+     * نادیده گرفته شود؛ در آن صورت همان رفتار حالت واقعی اعمال می‌شود: استثنا پرتاب
+     * می‌شود تا فراخوان‌کننده رزرو پیامک (مثل courier_offer_sms_sent_at) را آزاد کند.
+     *
+     * @throws SmsSendingException
+     */
+    private function storeInSimulator(string $localMobile, mixed $paramValue, string $patternCode): void
+    {
+        if (Sms_Simulator_Send(
+            localMobile: $localMobile,
+            paramValue: $paramValue,
+            templateKey: $patternCode,
+        )) {
+            return;
+        }
+
+        throw new SmsSendingException('ثبت پیامک در شبیه‌ساز پیامک ناموفق بود.');
     }
 
     /**

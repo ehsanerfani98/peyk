@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
  * otp_pattern_code) که مستقل از کدهای پترن واقعی مدیانا است؛ متن پیام از
  * config('mediana.simulator_templates') با همان کلید خوانده می‌شود.
  */
-function Sms_Simulator_Send(string $localMobile, mixed $paramValue, string $templateKey): void
+function Sms_Simulator_Send(string $localMobile, mixed $paramValue, string $templateKey): bool
 {
     try {
         $message = SmsMessage::create([
@@ -24,19 +24,24 @@ function Sms_Simulator_Send(string $localMobile, mixed $paramValue, string $temp
             'pattern_code' => $templateKey,
         ]);
 
-        // ---- لاگ تشخیصی موقت: درج رکورد شبیه‌ساز با موفقیت انجام شد ----
         Log::info('sms_simulator.stored', [
             'id' => $message->id,
             'receiver' => $message->receiver,
             'template' => $templateKey,
         ]);
+
+        return true;
     } catch (Throwable $e) {
-        Log::warning('sms_simulator.store_failed', [
+        // خطای درج نباید بی‌صدا باشد: سطح error ثبت می‌شود و false برگردانده می‌شود
+        // تا فراخوان‌کننده (SmsSender) مانند حالت واقعی رفتار کند.
+        Log::error('sms_simulator.store_failed', [
             'receiver' => $localMobile,
             'template' => $templateKey,
             'exception' => $e::class,
             'error' => $e->getMessage(),
         ]);
+
+        return false;
     }
 }
 

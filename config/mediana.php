@@ -187,7 +187,7 @@ return [
         'pattern_sender_order_in_transit' => 'سفارش :value در مسیر است',
         'pattern_sender_order_delivered' => 'سفارش :value تحویل داده شد',
         'pattern_sender_order_cancelled' => 'سفارش :value لغو شد',
-        'pattern_courier_offer' => 'پیک گرامی، سفارش جدید با کد :value برای شما یافت شد',
+        'pattern_courier_offer' => 'پیک گرامی، پیشنهاد سفارش جدید. برای پذیرش، روی این لینک بزنید: :value',
         'pattern_courier_cancelled' => 'پیک گرامی، سفارش :value لغو گردید',
         'pattern_system_cancellation' => 'سفارش :value به دلیل عدم یافتن پیک لغو شد',
         'pattern_survey_link' => 'لطفا در نظرسنجی شرکت کنید : :value',
