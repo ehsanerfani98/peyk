@@ -365,19 +365,41 @@ final class OrderNotificationService
      */
     public function sendCourierOfferLink(Order $order): void
     {
+        $order->loadMissing('courier');
+
+        $mode = $this->smsSender->isRealMode() ? 'real' : 'simulator';
+        $paramKey = $this->getParamKey('courier_offer_param_key');
+
+        // ---- لاگ تشخیصی موقت: ورود به مسیر ارسال پیامک پیشنهاد پیک ----
+        Log::info('sms.courier_offer_attempt', [
+            'order_id' => $order->id,
+            'status' => $order->status,
+            'mode' => $mode,
+            'courier_id' => $order->courier_id,
+            'courier_mobile' => $order->courier?->mobile,
+            'has_token' => (bool) $order->courier_offer_token,
+            'sms_sent_at' => $order->courier_offer_sms_sent_at?->toIso8601String(),
+            'param_key' => $paramKey,
+            'raw_pattern_setting' => (string) Setting::getValue('ippanel.pattern_courier_offer', ''),
+            'config_pattern' => (string) config('mediana.pattern_courier_offer', ''),
+        ]);
+
         $patternCode = $this->getPatternCode('pattern_courier_offer');
 
         if (! $patternCode) {
-            Log::info('sms.pattern_not_configured', ['key' => 'pattern_courier_offer']);
+            Log::info('sms.pattern_not_configured', [
+                'key' => 'pattern_courier_offer',
+                'order_id' => $order->id,
+                'mode' => $mode,
+            ]);
 
             return;
         }
 
-        $order->loadMissing('courier');
-
         if (! $order->courier_offer_token || ! $order->courier) {
             Log::warning('sms.courier_offer_link_not_available', [
                 'order_id' => $order->id,
+                'mode' => $mode,
                 'has_token' => (bool) $order->courier_offer_token,
                 'has_courier' => (bool) $order->courier,
             ]);
@@ -386,24 +408,41 @@ final class OrderNotificationService
         }
 
         if (! $this->claimCourierOfferSms($order)) {
-            Log::info('sms.courier_offer_already_sent', ['order_id' => $order->id]);
+            Log::info('sms.courier_offer_already_sent', [
+                'order_id' => $order->id,
+                'mode' => $mode,
+                'sms_sent_at' => $order->fresh()?->courier_offer_sms_sent_at?->toIso8601String(),
+            ]);
 
             return;
         }
 
+        $offerUrl = route('courier.offer', ['token' => $order->courier_offer_token]);
+
         try {
-            $this->smsSender->send(
-                localMobile: $order->courier->mobile,
-                paramValue: route('courier.offer', ['token' => $order->courier_offer_token]),
+            $result = $this->smsSender->send(
+                localMobile: (string) $order->courier->mobile,
+                paramValue: $offerUrl,
                 patternCode: $patternCode,
-                paramKey: $this->getParamKey('courier_offer_param_key'),
+                paramKey: $paramKey,
             );
+
+            // ---- لاگ تشخیصی موقت: پیامک (واقعی/شبیه‌ساز) بدون استثنا پردازش شد ----
+            Log::info('sms.courier_offer_dispatched', [
+                'order_id' => $order->id,
+                'mode' => $mode,
+                'receiver' => $order->courier->mobile,
+                'pattern_code' => $patternCode,
+                'offer_url' => $offerUrl,
+                'provider_tracking_id' => $result?->trackingId(),
+            ]);
         } catch (SmsSendingException $e) {
             // ارسال ناموفق: رزرو آزاد می‌شود تا برای همین پیشنهاد امکان تلاش مجدد بماند
             $this->releaseCourierOfferSmsClaim($order);
 
             Log::warning('sms.courier_offer_failed', [
                 'order_id' => $order->id,
+                'mode' => $mode,
                 'courier_id' => $order->courier_id,
                 'error' => $e->getMessage(),
             ]);

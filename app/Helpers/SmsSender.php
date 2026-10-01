@@ -67,6 +67,13 @@ final class SmsSender
         ?string $type = null,
     ): ?SmsSendResult {
         if (! $this->isRealMode()) {
+            // ---- لاگ تشخیصی موقت: شاخه شبیه‌ساز انتخاب شد ----
+            Log::info('sms.dispatch_simulator', [
+                'mobile' => $localMobile,
+                'template_key' => $patternCode,
+                'parameters' => $parameters,
+            ]);
+
             Sms_Simulator_Send(
                 localMobile: $localMobile,
                 paramValue: $this->simulatorValue($parameters),
@@ -77,7 +84,17 @@ final class SmsSender
         }
 
         try {
-            return $this->provider->sendPattern($localMobile, $patternCode, $parameters, $type);
+            $result = $this->provider->sendPattern($localMobile, $patternCode, $parameters, $type);
+
+            // ---- لاگ تشخیصی موقت: شاخه سرویس‌دهنده واقعی انتخاب شد ----
+            Log::info('sms.dispatch_real', [
+                'mobile' => $localMobile,
+                'pattern_code' => $patternCode,
+                'succeed' => $result->succeed,
+                'tracking_id' => $result->trackingId(),
+            ]);
+
+            return $result;
         } catch (SmsSendingException $e) {
             Log::warning('sms.real_send_failed', [
                 'mobile' => $localMobile,

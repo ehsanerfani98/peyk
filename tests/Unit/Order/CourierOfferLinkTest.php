@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\Order;
+use App\Models\Setting;
+use App\Models\SmsMessage;
 use App\Models\User;
 use App\Services\Order\CourierOfferService;
 use App\Services\Order\Exceptions\OrderStateException;
@@ -85,6 +87,25 @@ it('sends a new sms for a new offer of the same order', function () {
 
     expect($provider->patternCalls)->toHaveCount(2)
         ->and((string) $provider->patternCalls[1]['parameters']['code'])->toContain('/courier-offer/offer-token-2');
+});
+
+it('records the courier offer link sms in the sms simulator table in simulator mode', function () {
+    // حالت شبیه‌ساز: پیامک ارسال واقعی نمی‌شود، اما باید در جدول sms_messages ثبت شود
+    config()->set('sms_simulator.mode', 'simulator');
+    Setting::setValue('sms_mode', 'simulator', 'sms');
+    Setting::setValue('ippanel.pattern_courier_offer', '', 'sms');
+
+    $order = createCourierOfferLinkOrder();
+
+    app(OrderNotificationService::class)->sendCourierOfferLink($order->fresh());
+
+    $message = SmsMessage::query()->latest('id')->first();
+
+    expect($message)->not->toBeNull()
+        ->and($message->receiver)->toBe('09120000002')
+        ->and($message->pattern_code)->toBe('pattern_courier_offer')
+        ->and($message->content)->toContain('/courier-offer/offer-token-1')
+        ->and($order->fresh()->courier_offer_sms_sent_at)->not->toBeNull();
 });
 
 it('accepts the offer by the sms link token', function () {
@@ -288,6 +309,17 @@ function createCourierOfferLinkSchema(): void
             $table->string('key')->unique();
             $table->text('value')->nullable();
             $table->string('group')->nullable();
+            $table->timestamps();
+        });
+    }
+
+    if (! Schema::hasTable('sms_messages')) {
+        Schema::create('sms_messages', function (Blueprint $table): void {
+            $table->id();
+            $table->string('receiver', 20)->index();
+            $table->string('sender', 32)->nullable();
+            $table->text('content');
+            $table->string('pattern_code')->nullable();
             $table->timestamps();
         });
     }

@@ -17,16 +17,24 @@ use Illuminate\Support\Facades\Log;
 function Sms_Simulator_Send(string $localMobile, mixed $paramValue, string $templateKey): void
 {
     try {
-        SmsMessage::create([
+        $message = SmsMessage::create([
             'receiver' => $localMobile,
             'sender' => (string) config('sms_simulator.sender', '+983000505'),
             'content' => getPattern($templateKey, $paramValue),
             'pattern_code' => $templateKey,
         ]);
+
+        // ---- لاگ تشخیصی موقت: درج رکورد شبیه‌ساز با موفقیت انجام شد ----
+        Log::info('sms_simulator.stored', [
+            'id' => $message->id,
+            'receiver' => $message->receiver,
+            'template' => $templateKey,
+        ]);
     } catch (Throwable $e) {
         Log::warning('sms_simulator.store_failed', [
             'receiver' => $localMobile,
             'template' => $templateKey,
+            'exception' => $e::class,
             'error' => $e->getMessage(),
         ]);
     }
